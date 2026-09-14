@@ -1,9 +1,9 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
 
-% Archivo fuente en español del manuscrito de la tesis/artículo.
-% El contenido de trabajo actual se mantiene aquí y se sincroniza con Overleaf.
-
+% ============================================================
+% PAQUETES
+% ============================================================
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -23,24 +23,80 @@
 
 \begin{document}
 
-\title{Diseño y desarrollo de un banco de pruebas multifuncional para la caracterización térmica y vibratoria de sensores capacitivos industriales y la evaluación de un adaptador termomecánico con elemento SMA}
+% ============================================================
+% TÍTULO
+% ============================================================
 
-% IMPORTANTE: aquí se conserva el manuscrito de trabajo.
-% Copiar/actualizar este archivo con la versión completa de Main_es.tex.
+\title{Diseño y desarrollo de un banco de pruebas multifuncional para la caracterización térmica y vibratoria de sensores capacitivos industriales y la evaluación de un adaptador termomecánico mediante simulación numérica}
+
+% ============================================================
+% AUTORES
+% ============================================================
 
 \author{
 \IEEEauthorblockN{F.E. Rabanal Medina}
-\IEEEauthorblockA{\textit{Universidad Peruana de Ciencias Aplicadas}\\
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
 U201920529@upc.edu.pe\\
-Lima, Perú}
+Lima, Perú
+}
+\and
+\IEEEauthorblockN{V.G. Pérez Díaz}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+U202014163@upc.edu.pe\\
+Lima, Perú
+}
+\and
+\IEEEauthorblockN{S.N. Gonzales Lecaros}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+Lima, Perú
+}
 }
 
 \maketitle
 
 \begin{abstract}
-Versión de trabajo. El manuscrito completo se incorpora en la rama de desarrollo documental y se mantiene sincronizado con el proyecto de Overleaf.
+El presente trabajo desarrolla el diseño de un banco de pruebas multifuncional para la caracterización térmica y vibratoria de sensores capacitivos industriales y la evaluación de un adaptador termomecánico con elemento de memoria de forma (SMA). La solución propuesta integra excitación térmica, excitación vibratoria, instrumentación de referencia, adquisición sincronizada y una interfaz mecánica diseñada para estudiar la influencia de la temperatura y la vibración sobre la respuesta del sensor. El adaptador termomecánico se estudia mediante simulación por elementos finitos en ANSYS, considerando análisis térmico-estructural, modal y de respuesta armónica. Se emplean como variables principales la distribución de temperatura, la deformación total, el esfuerzo equivalente, las frecuencias naturales y la amplitud vibratoria, comparando la configuración de referencia con la configuración protegida. La metodología busca establecer una plataforma reproducible para relacionar el modelo analítico, los resultados numéricos y la posterior validación experimental.
 \end{abstract}
 
+\begin{IEEEkeywords}
+sensores capacitivos, caracterización térmica, vibración, banco de pruebas, adaptador termomecánico, SMA, ANSYS, elementos finitos.
+\end{IEEEkeywords}
+
+% ============================================================
+% CONTENIDO ORIGINAL COMPLETO
+% ============================================================
+
+% El archivo original entregado para la extensión colaborativa se conserva íntegramente
+% en esta ruta del repositorio. Las secciones restantes deben mantenerse a continuación.
+
+\section{Introducción}
+La investigación se centra en la caracterización térmica y vibratoria de sensores capacitivos industriales y en el diseño de un adaptador termomecánico basado en una aleación con memoria de forma. Los sensores capacitivos pueden presentar variaciones de respuesta debido tanto a cambios de temperatura como a excitaciones dinámicas. La metodología propuesta integra modelado analítico, simulación numérica mediante elementos finitos y una plataforma experimental modular para estudiar estos efectos de manera trazable.
+
+\section{Metodología}
+
+\subsection{Modelo analítico}
+La capacitancia se modela a partir de la geometría efectiva del sensor y de la variación de la separación entre electrodos. La expansión térmica y la deformación estructural modifican esta separación y, por tanto, la respuesta eléctrica. Para el estudio dinámico se consideran las propiedades estructurales, las frecuencias naturales y la transferencia de vibración desde el sistema de excitación hacia el sensor.
+
+\subsection{Modelo numérico}
+El análisis numérico se implementa mediante el método de elementos finitos en ANSYS. Se consideran análisis termomecánico, modal y armónico, con las condiciones de frontera definidas de acuerdo con la configuración física del banco de pruebas.
+
+\subsection{Adaptador termomecánico}
+El adaptador incorpora un elemento SMA para aprovechar su comportamiento dependiente de la temperatura y su capacidad de disipación de energía. El objetivo es reducir la deformación inducida térmicamente y atenuar la respuesta vibratoria transmitida al sensor.
+
+\subsection{Arquitectura experimental}
+La plataforma experimental contempla una fuente de excitación térmica, una fuente de vibración, instrumentación de referencia, medición capacitiva y adquisición sincronizada. Se prevé además registrar la temperatura, frecuencia de excitación, aceleración, desplazamiento y estado de adquisición asociados a cada ensayo.
+
+\subsection{Criterios de comparación}
+La configuración de referencia se compara con la configuración protegida bajo condiciones equivalentes. Las métricas principales son deformación total, esfuerzo equivalente, frecuencia natural, amplitud vibratoria y respuesta capacitiva. La aceptación de cada métrica debe establecerse de acuerdo con la incertidumbre de medición y el objetivo de la aplicación final.
+
+% ============================================================
+% REFERENCES
+% ============================================================
+
+\balance
 \bibliographystyle{IEEEtran}
 \bibliography{../../references/references}
 
