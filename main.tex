@@ -1,0 +1,77 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Packages
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{float}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Design of a Thermomechanical Adapter to Reduce Thermal Deformation and Vibrational Response in Capacitive Sensors Using Numerical Simulation}
+
+\author{
+\IEEEauthorblockN{F.E. Rabanal Medina}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas} \\
+\textit{U201920529@upc.edu.pe} \\
+Lima, Peru
+}
+\and
+\IEEEauthorblockN{V.G. Pérez Díaz}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas} \\
+\textit{U202014163@upc.edu.pe} \\
+Lima, Peru
+}
+}
+
+\maketitle
+
+\begin{abstract}
+The present work shows the design of a thermomechanical adapter incorporating a shape memory alloy (SMA) element to improve the robustness of capacitive sensors subjected to temperature variations and mechanical vibrations. The proposed solution takes advantage of the temperature-dependent phase transformation of SMAs, together with their adaptive stiffness and damping characteristics, to limit thermally induced structural deformation and attenuate the vibrational response transmitted to the sensor. The adapter is evaluated through numerical simulation using the finite element method implemented in ANSYS. The methodology considers thermomechanical, modal, and harmonic response analyses to characterize the behavior of the sensor--adapter assembly under different thermal and dynamic operating conditions. The main evaluation parameters include temperature distribution, total deformation, equivalent stress, natural frequencies, and vibration amplitude. Based on the reviewed literature, SMA-based structures have demonstrated potential for stiffness modification, energy dissipation, and vibration attenuation under variable operating conditions. The proposed numerical approach provides a basis for comparing the response of the sensor with and without the adapter and for identifying a thermomechanical configuration capable of improving sensor performance under adverse thermal and vibrational environments.
+\end{abstract}
+
+\renewcommand\IEEEkeywordsname{Keywords}
+
+\begin{IEEEkeywords}
+capacitive sensor, shape memory alloy, thermomechanical adapter, ANSYS, thermal deformation, mechanical vibration, numerical simulation
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Capacitive sensors are widely used in industrial measurement and automation systems due to their ability to detect variables such as displacement, proximity, pressure, and position through changes in capacitance. Their implementation enables contactless measurements and the development of high-sensitivity instrumentation systems. However, their performance can be affected by environmental and mechanical operating conditions. Temperature variations may modify the geometry and dielectric behavior of the sensing structure, while mechanical vibrations can generate dynamic displacements and resonance-related effects that alter the sensor response \cite{Keshyagol2024,Zhang2024}.
+
+The operating principle of capacitive sensors can be expressed by
+
+\begin{equation}
+C=\frac{\varepsilon A}{d},
+\end{equation}
+
+where $C$ is the capacitance, $\varepsilon$ is the permittivity of the dielectric medium, $A$ is the effective electrode area, and $d$ is the separation between the capacitive elements. According to this relationship, variations in material properties or sensor geometry may directly affect the measured capacitance. Temperature changes can modify the dimensions of the sensing structure through thermal expansion and may also alter the dielectric properties of the material, whereas mechanical vibrations can produce dynamic displacements that modify the effective electrode separation \cite{Keshyagol2024,Zhang2024}.
+
+Keshyagol et al. \cite{Keshyagol2024} analyzed the influence of temperature on the behavior of a capacitive pressure sensor. Their study showed that the different thermal expansion coefficients of the constituent materials can generate internal stresses and geometric variations in the sensor structure. In addition, temperature-dependent changes in dielectric properties and leakage current can modify the effective capacitance and affect measurement accuracy. These results demonstrate the relevance of considering thermal effects during the design of capacitive sensing systems.
+
+Mechanical vibration represents another relevant disturbance in capacitive sensing applications. Zhang et al. \cite{Zhang2024} investigated vibration rectification error in capacitive MEMS accelerometers and showed that strong vibration can distort the sensor output. When the excitation frequency approaches the resonance frequency of the mechanical structure, the displacement amplitude increases and can intensify nonlinearities in the displacement-to-capacitance conversion. Therefore, natural frequencies and vibrational response constitute important parameters when evaluating the robustness of capacitive sensing systems.
+
+The influence of temperature becomes especially relevant when capacitive sensors operate under demanding thermal conditions. Ghanam et al. \cite{Ghanam2025} developed capacitive MEMS pressure sensors for extreme-temperature environments and demonstrated reliable operation up to $350\,^{\circ}\mathrm{C}$. Their design considered thermal expansion effects and mechanical stresses, highlighting the importance of structural configuration and material selection for maintaining sensor stability at elevated temperatures.
+
+Different structural strategies have been investigated to compensate for temperature-induced effects. Hao et al. \cite{Hao2012} developed an annular mechanical temperature-compensation structure for a gas-sealed capacitive pressure sensor. The proposed structure modifies the deformation of the sensing diaphragm through differences in thermal expansion and was analyzed through numerical simulation. Their results demonstrated that an additional mechanical element with appropriate geometry and thermomechanical properties can contribute to reducing the thermal sensitivity of a capacitive sensing system.
+
+In this context, shape memory alloys (SMAs) represent a promising alternative for the development of adaptive thermomechanical structures. SMAs undergo reversible phase transformations between martensitic and austenitic states as a function of temperature and mechanical loading. These transformations are characterized by the temperatures $M_f$, $M_s$, $A_s$, and $A_f$ and produce variations in the mechanical response of the material \cite{Hossain2025}. In addition, the hysteretic behavior associated with the phase transformation enables adaptive stiffness and damping characteristics, allowing mechanical energy dissipation during cyclic loading \cite{Hossain2025}.
+
+The application of SMA elements for vibration control has also been reported in adaptive isolation and dynamic vibration absorption systems. SMA-based components can modify their mechanical characteristics according to operating conditions and contribute to vibration attenuation over different frequency ranges \cite{Hossain2025}. A numerical application reported for an aeroengine bracket showed that replacing structural members with NiTi SMA elements increased structural stiffness by $36.71\%$ and reduced the resonance peak amplitude by $17.7\%$, demonstrating the potential of SMA-based elements for controlling structural dynamic response \cite{Hossain2025}. However, the reviewed studies do not specifically address the use of SMA-based thermomechanical adapters for protecting capacitive sensors under combined thermal and vibrational disturbances.
+
+The reviewed compensation approaches primarily address thermal and vibrational effects through separate strategies. This motivates the investigation of a single thermomechanical solution capable of responding to both disturbances. Based on these antecedents, the present work proposes the design of a thermomechanical adapter incorporating an SMA element to improve the thermal and vibrational robustness of capacitive sensors. The proposed solution exploits the temperature-dependent mechanical behavior and damping capability of the SMA to limit thermally induced deformation and attenuate the vibrational response transmitted to the sensor. The sensor--adapter assembly is evaluated through numerical simulation using the finite element method implemented in ANSYS. Thermomechanical, modal, and harmonic response analyses are considered, using temperature distribution, total deformation, equivalent stress, natural frequencies, and vibration amplitude as the main evaluation parameters. The response of the capacitive sensor with and without the proposed adapter is compared to identify a suitable thermomechanical configuration for operation under adverse thermal and vibrational conditions.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
