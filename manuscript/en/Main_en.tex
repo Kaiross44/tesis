@@ -1,0 +1,368 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{balance}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% ============================================================
+% TITLE
+% ============================================================
+
+\title{Design and Development of a Multifunctional Test Bench for the Thermal and Vibrational Characterization of Industrial Capacitive Sensors and the Evaluation of a Thermomechanical Adapter Using Numerical Simulation}
+
+% ============================================================
+% AUTHORS
+% ============================================================
+
+\author{
+\IEEEauthorblockN{F.E. Rabanal Medina}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+U201920529@upc.edu.pe\\
+Lima, Peru
+}
+\and
+\IEEEauthorblockN{V.G. Pérez Díaz}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+U202014163@upc.edu.pe\\
+Lima, Peru
+}
+\and
+\IEEEauthorblockN{S.N. Gonzales Lecaros}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+pmcsgonz@upc.edu.pe\\
+Lima, Peru
+}
+\and
+\IEEEauthorblockN{C.H. Inga Espinoza}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+@upc.edu.pe\\
+Lima, Peru
+}
+\and
+\IEEEauthorblockN{J.R. Ronceros Rivas}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+@upc.edu.pe\\
+Lima, Peru
+}
+}
+
+\maketitle
+
+% ============================================================
+% ABSTRACT
+% ============================================================
+
+\begin{abstract}
+Industrial capacitive sensors can experience measurement drift and dynamic disturbances when exposed to temperature variations and mechanical vibration. This work proposes an integrated experimental methodology that combines a multifunctional test bench with a thermomechanical adapter incorporating a shape memory alloy (SMA) element. The objective is to establish a controlled platform for reproducing thermal and vibrational operating conditions, measuring the physical variables that affect capacitive response, and subsequently validating a protective configuration through comparison with the unprotected sensor. The methodology combines three complementary approaches: an analytical formulation of the capacitance and thermomechanical response, finite-element numerical simulation in ANSYS, and controlled experimental testing with synchronized data acquisition. The proposed platform includes temperature regulation, vibration excitation, reference instrumentation, emergency protection, and time synchronization between temperature, acceleration, displacement, and capacitive measurements. The numerical stage is intended to evaluate temperature distribution, total deformation, equivalent stress, natural frequencies, and harmonic response, while the experimental stage provides the corresponding physical measurements for comparison and validation. The resulting framework establishes the experimental infrastructure required to determine whether the proposed thermomechanical adapter reduces thermal deformation and vibration transmission without degrading the useful capacitive response.
+\end{abstract}
+
+\renewcommand\IEEEkeywordsname{Keywords}
+\begin{IEEEkeywords}
+capacitive sensor, test bench, thermomechanical adapter, shape memory alloy, temperature, mechanical vibration, ANSYS, finite element analysis, data acquisition, experimental characterization
+\end{IEEEkeywords}
+
+% ============================================================
+% 1. INTRODUCTION
+% ============================================================
+
+\section{Introduction}
+
+Capacitive sensors are used in industrial measurement and automation because variations in capacitance can be related to quantities such as displacement, position, proximity, pressure, force, and inclination. Their small sensing gaps and high sensitivity make them suitable for precision instrumentation; however, the same characteristics make the measurement susceptible to changes in the geometry and electromagnetic environment surrounding the sensing structure \cite{Ghanam2023,Zhang2024,Zaitsev2022}.
+
+The idealized relationship between capacitance and the main geometrical and material variables, used as the reference expression for the capacitive response in FEM-based sensor design studies, can be written as \cite{Keshyagol2024,Ghanam2023}:
+
+\begin{equation}
+C=\frac{\varepsilon A}{d},
+\label{eq:capacitance}
+\end{equation}
+
+where $C$ denotes capacitance, $\varepsilon$ is the effective permittivity, $A$ is the effective electrode area, and $d$ is the distance between the capacitive elements. Consequently, a thermal or mechanical disturbance that changes any of these quantities may produce a variation in the electrical output even when the physical quantity of interest remains constant. For small variations, the relative capacitance change can be approximated by
+
+\begin{equation}
+\frac{\Delta C}{C}\approx\frac{\Delta\varepsilon}{\varepsilon}+\frac{\Delta A}{A}-\frac{\Delta d}{d},
+\label{eq:small_signal}
+\end{equation}
+
+which provides a direct conceptual link between environmental disturbances and measurement error. This first-order linearization is used here to separate material and geometric contributions to the capacitive response \cite{Keshyagol2024,Ghanam2023,Hao2012}.
+
+Thermal effects are relevant because temperature changes can alter the dimensions of the sensing structure and the properties of the dielectric region. Ghanam et al. demonstrated that shielded capacitive pressure and force sensors can be operated at elevated temperatures by carefully selecting the structural materials, the fabrication process, and the shielding architecture; their characterization included temperature drift as a principal performance parameter \cite{Ghanam2023}. A related approach was presented by Hao et al., who introduced an annular mechanical temperature-compensation structure to reduce the influence of thermal expansion in a gas-sealed capacitive pressure sensor. Their work showed experimentally that a suitable additional mechanical structure can significantly reduce the temperature coefficient while preserving pressure sensitivity \cite{Hao2012}. These studies support the use of structural mechanisms as a complement to electrical compensation.
+
+Mechanical vibration introduces a second disturbance mechanism. Oscillatory motion can modify the sensing gap, change electrode alignment, and excite structural modes. Zhang et al. analyzed vibration rectification error in an area-variation capacitive MEMS accelerometer and showed that vibration-induced nonlinearities are coupled to the dynamic amplification of the sensing structure, particularly as the excitation frequency approaches resonance \cite{Zhang2024}. Similarly, Zaitsev et al. investigated capacitive sensing for rotating-shaft vibration and highlighted the importance of electrode geometry, active and guard regions, and three-dimensional numerical analysis when the sensor is used to measure dynamic motion \cite{Zaitsev2022}. These results indicate that vibration characterization should not be limited to measuring excitation amplitude; it should also consider the resulting displacement and the modal behavior of the sensor assembly.
+
+Another relevant design aspect is the use of structural shielding to reduce unwanted interactions. Bai et al. proposed a differential capacitive sensor with a grounded shield window to improve robustness against undesired motion and environmental interference \cite{Bai2016}. More recently, Ye et al. developed a near-ground shielding structure for grounded capacitive proximity sensors and combined finite-element analysis with experimental verification to reduce differences between mounting configurations \cite{Ye2025}. Although these contributions primarily address electrical field distribution and mounting effects, they reinforce the broader principle that a properly designed additional structure can improve sensor robustness without altering the sensing element itself.
+
+The combination of thermal and vibrational disturbances motivates an integrated experimental solution. A test bench that evaluates temperature and vibration independently may not adequately reproduce operating conditions in which both disturbances occur simultaneously. Therefore, the experimental platform must provide controlled thermal excitation, controlled mechanical excitation, reference measurement of the applied disturbances, and synchronized acquisition of the sensor response. The experimental characterization methodology described in this work is based on this requirement and is intended to provide reproducible operating points for later comparison with numerical predictions.
+
+In parallel, the proposed protective solution is a thermomechanical adapter, hereafter also referred to as a protective shield, designed to mechanically isolate the capacitive sensor while incorporating an SMA element. Shape memory alloys are attractive because their thermomechanical behavior can be coupled to temperature and cyclic loading. Saedi et al. reviewed the damping mechanisms of SMAs and reported that hysteretic behavior associated with thermoelastic phase transformation can dissipate mechanical energy \cite{Saedi2023}. Davarnia et al. further summarized the dependence of NiTi SMA behavior on loading frequency, strain amplitude, temperature, and cyclic loading, which are variables directly relevant to the design of a thermomechanical element intended to interact with a vibrating structure \cite{Davarnia2025}.
+
+Based on these antecedents, this paper integrates two previously separated developments into a single research workflow: (i) the design of a multifunctional test bench for controlled thermal and vibrational characterization, and (ii) the design and numerical evaluation of a thermomechanical adapter for sensor protection. The central premise is that the test bench provides the controlled environment required to experimentally characterize the unprotected sensor and to validate, in a subsequent stage, the response predicted for the protected configuration. This integration creates a direct link between sensor characterization, numerical design, and experimental validation.
+
+The specific objectives are therefore: 1) to define an experimental architecture capable of generating controlled thermal and vibrational disturbances; 2) to formulate measurable variables and synchronization requirements for the acquisition of temperature, acceleration, displacement, and capacitive response; 3) to establish a finite-element methodology for the sensor--adapter assembly; and 4) to define a comparative procedure for evaluating whether the thermomechanical adapter decreases thermally induced deformation and vibrational transmission while preserving the useful sensor response. Figure~\ref{fig:conceptual} summarizes the problem--solution sequence adopted in the integrated study.
+
+% ============================================================
+% FIGURE 1 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{SPACE RESERVED FOR FIGURE 1}}}
+\caption{Conceptual integration of the problem, proposed thermomechanical solution, numerical simulation, and experimental validation. The diagram follows the research logic defined for the combined development of the adapter and the test bench.}
+\label{fig:conceptual}
+\end{figure}
+
+% ============================================================
+% 2. METHODOLOGY
+% ============================================================
+
+\section{Methodology}
+
+The methodology is structured to satisfy two complementary requirements: the proposed thermomechanical adapter must be analyzed numerically, and the physical behavior of the sensor must be measurable under controlled conditions. Accordingly, the study combines an analytical method, a numerical simulation method, and an experimental method. The analytical formulation establishes the physical relationships to be measured; the numerical model predicts the thermomechanical and dynamic response; and the experimental platform provides reference measurements for comparison and validation.
+
+\subsection{Research Design and Integrated Test Strategy}
+
+The research follows a comparative and sequential design. First, the capacitive sensor is characterized without the protective adapter to establish a baseline response. Second, the sensor--adapter assembly is modeled and analyzed using finite-element simulation. Third, the integrated bench is used to reproduce thermal and vibrational conditions while acquiring the variables required for validation. Finally, the baseline and protected configurations are compared using common excitation conditions and common response metrics.
+
+This sequence avoids treating the test bench and the protective device as independent developments. Instead, the test bench is defined from the variables required by the numerical and experimental models, while the numerical analyses define the physical quantities that must be measured experimentally. The resulting architecture is therefore both an evaluation platform and a validation infrastructure.
+
+As recommended for the methodological structure of a conference paper, at least two methods are explicitly compared: finite-element numerical simulation and controlled experimental characterization. The analytical model is used as a third supporting method rather than as a substitute for either of the two principal methods.
+
+% ============================================================
+% FIGURE 2 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{SPACE RESERVED FOR FIGURE 2}}}
+\caption{Proposed architecture of the multifunctional test bench, including thermal excitation, vibration excitation, reference instrumentation, capacitive readout, synchronized data acquisition, and safety functions.}
+\label{fig:bench_architecture}
+\end{figure}
+
+\subsection{Analytical Thermomechanical Model}
+
+The analytical stage is based on the coupling between thermal expansion, structural displacement, and capacitive response. For an isotropic component subjected to a temperature increment $\Delta T$, the \textit{first-order thermal strain} is represented by a linear relation based on the coefficient of thermal expansion \cite{Hao2012}:
+
+\begin{equation}
+\varepsilon_{th}=\alpha\Delta T,
+\label{eq:thermal_strain}
+\end{equation}
+
+where $\alpha$ is the coefficient of thermal expansion. The associated \textit{dimensional variation due to thermal expansion} can be approximated using the same small-deformation assumption \cite{Hao2012}:
+
+\begin{equation}
+\Delta L=\alpha L_0\Delta T,
+\label{eq:thermal_length}
+\end{equation}
+
+with $L_0$ denoting the initial dimension. For the sensing gap, the \textit{gap-variation model} is expressed to first order as the sum of thermal and vibration-induced contributions \cite{Hao2012,Zhang2024}:
+
+\begin{equation}
+ d(T)\approx d_0+\Delta d_{th}+\Delta d_{vib},
+\label{eq:gap}
+\end{equation}
+
+where $d_0$ is the nominal gap, $\Delta d_{th}$ is the thermally induced contribution, and $\Delta d_{vib}$ is the vibration-induced contribution. Substitution of this expression into (1) establishes the conceptual relationship between the environmental disturbances and the measured capacitance.
+
+The \textit{dynamic model of the sensor--adapter assembly} is represented in matrix form by the structural equation of motion \cite{Zhang2024,Davarnia2025}:
+
+\begin{equation}
+\mathbf{M}\ddot{\mathbf{x}}+\mathbf{C}\dot{\mathbf{x}}+\mathbf{K}\mathbf{x}=\mathbf{F}(t),
+\label{eq:dynamic}
+\end{equation}
+
+where $\mathbf{M}$, $\mathbf{C}$, and $\mathbf{K}$ are the mass, damping, and stiffness matrices, respectively. The corresponding \textit{undamped modal problem} is obtained from the structural eigenvalue formulation \cite{Zhang2024,Zaitsev2022}:
+
+\begin{equation}
+\left(\mathbf{K}-\omega_n^2\mathbf{M}\right)\boldsymbol{\phi}_n=0,
+\label{eq:modal}
+\end{equation}
+
+which defines the natural frequencies $\omega_n$ and mode shapes $\boldsymbol{\phi}_n$. These quantities are used to select vibration test points and to determine whether a given operating frequency lies near a structural resonance. The relevance of considering resonance and dynamic amplification in capacitive sensing is supported by previous analyses of vibration-induced nonlinearity in capacitive MEMS devices \cite{Zhang2024}.
+
+For the thermomechanical adapter, the SMA element is introduced as a temperature-dependent mechanical component. Rather than assuming a constant elastic response over all operating conditions, the model considers the variation of mechanical properties with temperature and the possibility of hysteretic energy dissipation under cyclic loading. This formulation is consistent with published work on SMA damping, which identifies temperature, loading frequency, strain amplitude, and cycling as important variables for the resulting mechanical response \cite{Saedi2023,Davarnia2025}. Hossain et al. further discuss the coupled thermomechanical response and engineering potential of SMAs under phase transformations \cite{Hossain2025}.
+
+\subsection{Finite-Element Simulation Method}
+
+The numerical method is implemented using the finite element method (FEM) in ANSYS. The principal objective of this stage is to compare the sensor assembly without the adapter against the protected sensor--adapter assembly under equivalent thermal and mechanical boundary conditions. The numerical model is divided into three analysis levels.
+
+First, a thermomechanical analysis is used to determine the temperature field, thermal deformation, and equivalent stress generated by the imposed thermal boundary condition. The main outputs are the temperature distribution, maximum total deformation, deformation at the sensing gap, and stress concentration regions. These outputs are directly related to the mechanisms expressed in (2)--(4).
+
+Second, a modal analysis is performed to determine the natural frequencies and mode shapes of the sensor assembly. The baseline structure and the protected configuration are compared to identify changes in dynamic characteristics induced by the adapter. This step is particularly important because the adapter must not simply increase static stiffness; it must also avoid introducing an unfavorable resonance close to the intended operating range.
+
+Third, a harmonic-response analysis is used to estimate the steady-state response under sinusoidal excitation. The primary response variables are the displacement amplitude at the sensing region, the displacement transmitted through the adapter, and the corresponding dynamic stress. The analysis provides the numerical basis for defining the vibration levels and frequency points to be reproduced experimentally.
+
+The simulation procedure includes geometry definition, material assignment, mesh generation, contact and boundary-condition definition, solution, and post-processing. Mesh refinement should be concentrated in the sensor gap region, interfaces, mounting regions, and the SMA attachment area because these zones are expected to have strong gradients in displacement and stress. The final model will be considered suitable for experimental comparison only after checking mesh convergence and ensuring that the selected outputs are insensitive to further mesh refinement within the adopted tolerance.
+
+% ============================================================
+% FIGURE 3 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{SPACE RESERVED FOR FIGURE 3}}}
+\caption{Proposed sequence of analytical modeling, finite-element simulation, experimental testing, and validation. The same physical variables are retained through all stages to enable direct comparison.}
+\label{fig:method_sequence}
+\end{figure}
+
+\subsection{Design of the Multifunctional Test Bench}
+
+The test bench is conceived as a modular platform capable of independently or simultaneously applying temperature and mechanical vibration to the capacitive sensor. Its architecture is based on six functional blocks: thermal excitation and regulation, vibration excitation, reference instrumentation, capacitive measurement, data acquisition and synchronization, and safety.
+
+\subsubsection{Thermal subsystem}
+
+The thermal subsystem is responsible for generating a controlled temperature condition around the sensor and the protective structure. Depending on the implementation available in the laboratory, the heat source may be a controlled resistive heater, heating plate, or another equivalent thermal actuator. The temperature is measured using a thermocouple or PT100-type reference sensor located close to the test volume and, when required, an additional sensor placed near the capacitive assembly. A feedback controller regulates the thermal actuator to reach and maintain the selected set point.
+
+The thermal procedure must distinguish between the controller set point and the actual temperature of the sensing assembly. For this reason, the measured temperature used for subsequent analysis is the temperature associated with the sensor location rather than only the actuator command. The thermal subsystem should also include over-temperature protection and an emergency shutdown path.
+
+\subsubsection{Vibration subsystem}
+
+The vibration subsystem uses a shaker or equivalent actuator to impose a controlled mechanical excitation. The sensor and the adapter are mounted on the same mechanical interface so that the reference accelerometer measures the excitation actually transmitted to the test article. The experimental variable of interest is therefore not only the commanded actuator signal but the measured acceleration at the mounting location.
+
+The vibration tests should cover a frequency range defined from the modal simulation and the operating capability of the actuator. Particular attention is given to frequencies around the numerically predicted natural modes because the purpose of the characterization is to determine whether the thermomechanical adapter changes the transmitted dynamic response.
+
+The bench should provide closed-loop amplitude regulation whenever possible. In this configuration, the accelerometer signal is used as the feedback variable and the actuator command is adjusted to maintain approximately constant vibration amplitude as the frequency changes. This arrangement is consistent with the project architecture defined for amplitude control and synchronization.
+
+\subsubsection{Reference and output measurements}
+
+The experimental variables are grouped into continuous analog variables and discrete digital states. The main analog variables are: test temperature, dynamic acceleration, capacitive output, and sensor-gap displacement. The main digital states are heater state, shaker state, cooling state, emergency stop state, acquisition state, and synchronization trigger. This organization follows the variable structure defined for the integrated experimental platform.
+
+The inclusion of displacement measurement is particularly important. A change in capacitance alone does not distinguish whether the observed response is caused by a change in dielectric properties, structural deformation, or vibration-induced motion. Measuring the gap displacement independently provides a physical reference for interpreting the electrical response.
+
+\begin{table}[t]
+\caption{Primary Variables and Measurement Functions of the Test Bench}
+\label{tab:variables}
+\centering
+\footnotesize
+\begin{tabular}{p{0.26\columnwidth} p{0.25\columnwidth} p{0.37\columnwidth}}
+\toprule
+\textbf{Variable} & \textbf{Type / Unit} & \textbf{Purpose in validation} \\
+\midrule
+Temperature & Continuous, $^{\circ}$C & Establish actual thermal condition at sensor \\
+Acceleration & Continuous, m/s$^2$ or g & Quantify applied vibration amplitude \\
+Capacitive response & Continuous, pF or V & Evaluate sensor output and drift \\
+Gap displacement & Continuous, $\mu$m or mm & Identify thermally and dynamically induced motion \\
+Heater state & Digital & Record thermal actuator operation \\
+Shaker state & Digital & Record vibration actuator operation \\
+Cooling state & Digital & Record active cooling condition \\
+E-STOP & Digital & Provide safety shutdown information \\
+DAQ state & Digital & Identify acquisition intervals \\
+Trigger / Sync & Digital & Align thermal, vibration, and capacitance data \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Acquisition and Synchronization}
+
+The data-acquisition system must record the sensor output and the reference variables on a common time base. Synchronization is required because the principal objective is to establish relationships between temperature, acceleration, displacement, and capacitance rather than to analyze each variable independently.
+
+The minimum acquisition chain consists of a temperature measurement channel, an accelerometer channel, a displacement measurement channel, and the capacitive sensor interface. Digital channels are used for heater state, shaker state, emergency stop, acquisition status, and trigger. All continuous channels should be sampled at a rate sufficiently greater than the highest frequency component expected in the vibration tests. The exact sampling frequency is to be fixed after the operating bandwidth of the sensor, instrumentation, and shaker has been established.
+
+Each test record should contain, at minimum, the experiment identifier, sensor configuration (baseline or protected), temperature set point, measured temperature, vibration frequency, reference acceleration amplitude, measured displacement, capacitive output, and status variables. A synchronized trigger should mark the start of each test condition to facilitate segmentation of transient and steady-state portions of the record.
+
+Experimental characterization of capacitive sensors benefits from reporting not only instantaneous output but also stability and repeatability metrics. Schwenck et al. demonstrated a characterization strategy that included offset temperature stability, hysteresis, non-repeatability, noise-related measures, and Allan deviation for a capacitive sensor \cite{Schwenck2021}. These concepts motivate the inclusion of repeatability and stability metrics in the present methodology even though the definitive results are intentionally reserved for the results section of the full paper.
+
+\subsection{Thermomechanical Adapter Definition}
+
+The protective component is defined as a mechanical interface between the test-bench fixture and the capacitive sensor. Its function is not to interfere with the sensing electrodes but to reduce the transfer of environmentally induced deformation and vibration toward the sensing region. The adapter incorporates an SMA element selected according to the required operating temperature range and the target mechanical response.
+
+The conceptual design must satisfy four simultaneous constraints. First, the structure must maintain the nominal geometry of the sensor under the reference temperature condition. Second, thermal expansion of the adapter and sensor must be considered so that the resulting change in the sensing gap remains within the acceptable range. Third, the adapter should avoid a reduction of the usable vibration bandwidth caused by a new structural resonance in the operating range. Fourth, the SMA element must remain within its admissible thermomechanical state throughout the test conditions.
+
+The design variables may include adapter dimensions, mounting stiffness, interface geometry, SMA element dimensions, preload, and material selection. The design outputs considered in the numerical stage are maximum thermal deformation, gap displacement, equivalent stress, natural frequencies, and harmonic displacement amplitude. These variables establish a direct bridge between the numerical and experimental stages.
+
+% ============================================================
+% FIGURE 4 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{SPACE RESERVED FOR FIGURE 4}}}
+\caption{Conceptual operating principle of the thermomechanical adapter incorporating an SMA element. The adapter is evaluated as a structural interface intended to limit thermally induced deformation and vibrational transmission to the sensing region.}
+\label{fig:adapter_concept}
+\end{figure}
+
+\subsection{Experimental Test Matrix}
+
+The experimental plan is defined around controlled combinations of temperature and vibration frequency. The baseline sensor is first evaluated at the reference condition. Additional tests are then performed at selected temperature levels and vibration frequencies. The same combinations are subsequently applied to the sensor--adapter assembly so that the effect of the protection can be quantified under equivalent conditions.
+
+The temperature levels should be selected from the intended operating range of the application and from the safe range of the selected capacitive sensor, adapter materials, and instrumentation. Likewise, vibration frequencies should be selected from the numerical modal analysis and from the mechanical limits of the shaker. At least one condition should be located sufficiently far from the principal resonance region to represent a low-dynamic-disturbance case, while other conditions should probe the vicinity of relevant modes without exceeding the safe operating limits.
+
+For each test condition, the following sequence is recommended: stabilization at the target temperature; verification of sensor output before vibration; controlled vibration sweep or selected-frequency excitation; synchronized acquisition of all variables; return to the reference condition; and repeat measurement for repeatability assessment. When thermal and vibration disturbances are applied simultaneously, the time interval required for thermal stabilization should be recorded so that transient effects are not confused with steady-state behavior.
+
+Table~\ref{tab:testmatrix} provides the structure of the planned test matrix without imposing numerical values that have not yet been experimentally established. This keeps the methodology reproducible while avoiding unsupported assumptions about the final operating envelope.
+
+\begin{table}[t]
+\caption{Structure of the Experimental Test Matrix}
+\label{tab:testmatrix}
+\centering
+\footnotesize
+\begin{tabular}{p{0.20\columnwidth} p{0.18\columnwidth} p{0.18\columnwidth} p{0.28\columnwidth}}
+\toprule
+\textbf{Configuration} & \textbf{Temperature} & \textbf{Vibration} & \textbf{Main outputs} \\
+\midrule
+Baseline sensor & Reference & None & Capacitance, temperature \\
+Baseline sensor & Selected levels & None & Thermal drift, gap displacement \\
+Baseline sensor & Selected levels & Selected frequencies & Capacitance, acceleration, displacement \\
+Adapter + sensor & Reference & None & Baseline geometry, capacitance \\
+Adapter + sensor & Selected levels & None & Thermal deformation, capacitance \\
+Adapter + sensor & Selected levels & Selected frequencies & Transmitted acceleration, displacement, capacitance \\
+Adapter + sensor & Combined conditions & Combined excitation & Integrated robustness indicators \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparison and Validation Criteria}
+
+The validation strategy compares the numerical and experimental responses under equivalent boundary conditions. The baseline configuration is used to quantify the disturbance before protection, while the protected configuration is evaluated to determine the change produced by the adapter. The principal comparison variables are temperature distribution, gap deformation, vibration amplitude, natural frequency, and capacitive output.
+
+The \textit{relative attenuation indicator} is defined in this work to quantify the improvement between the baseline and protected configurations; its percentage form allows different response quantities to be compared on a common scale \cite{Schwenck2021}:
+
+\begin{equation}
+\eta_R=\left(1-\frac{R_{protected}}{R_{baseline}}\right)\times100\%,
+\label{eq:attenuation}
+\end{equation}
+
+where $R_{baseline}$ and $R_{protected}$ are the response amplitudes measured for the unprotected and protected configurations, respectively. For thermal drift, the comparison can instead be expressed through the difference in capacitance change per unit temperature. For the \textit{relative comparison between experimental and numerical results}, this work adopts the following percentage error indicator:
+
+\begin{equation}
+E_R=\frac{|R_{exp}-R_{FEA}|}{|R_{exp}|}\times100\%,
+\label{eq:error}
+\end{equation}
+
+where $R_{exp}$ is the experimental value and $R_{FEA}$ is the finite-element prediction at the same test condition. The acceptable threshold for each metric must be established according to the measurement uncertainty and the objective of the final application rather than assumed in advance.
+
+The experimental architecture also includes the possibility of monitoring a synchronization trigger and the state of the active shield or guard circuit when such functionality is present. This allows electrical shielding effects to be separated from purely mechanical protection effects, which is relevant because capacitive sensors can be sensitive to parasitic capacitance and external coupling. Previous work on shielded capacitive sensors supports the need to consider these interactions explicitly during characterization \cite{Aksoy2022,Ye2025}.
+
+Finally, the full methodology is designed so that the definitive results can be presented later through tables and plots comparing baseline and protected configurations. In accordance with the conference-paper criteria, the present section establishes the methods, variables, equations, test architecture, and comparison criteria; the numerical outcomes, experimental measurements, discussion of agreement or discrepancy, conclusions, and final reference expansion are reserved for the subsequent sections of the complete manuscript.
+
+% ============================================================
+% REFERENCES
+% ============================================================
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{../../references/references}
+
+\end{document}
