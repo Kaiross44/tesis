@@ -51,46 +51,311 @@ Lima, Perú
 \IEEEauthorblockN{S.N. Gonzales Lecaros}
 \IEEEauthorblockA{
 \textit{Universidad Peruana de Ciencias Aplicadas}\\
+pcmcsgonz@upc.edu.pe\\
+Lima, Perú
+}
+\and
+\IEEEauthorblockN{C.H. Inga Espinoza}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+@upc.edu.pe\\
+Lima, Perú
+}
+\and
+\IEEEauthorblockN{J.R. Ronceros Rivas}
+\IEEEauthorblockA{
+\textit{Universidad Peruana de Ciencias Aplicadas}\\
+@upc.edu.pe\\
 Lima, Perú
 }
 }
 
 \maketitle
 
+% ============================================================
+% RESUMEN
+% ============================================================
+
 \begin{abstract}
-El presente trabajo desarrolla el diseño de un banco de pruebas multifuncional para la caracterización térmica y vibratoria de sensores capacitivos industriales y la evaluación de un adaptador termomecánico con elemento de memoria de forma (SMA). La solución propuesta integra excitación térmica, excitación vibratoria, instrumentación de referencia, adquisición sincronizada y una interfaz mecánica diseñada para estudiar la influencia de la temperatura y la vibración sobre la respuesta del sensor. El adaptador termomecánico se estudia mediante simulación por elementos finitos en ANSYS, considerando análisis térmico-estructural, modal y de respuesta armónica. Se emplean como variables principales la distribución de temperatura, la deformación total, el esfuerzo equivalente, las frecuencias naturales y la amplitud vibratoria, comparando la configuración de referencia con la configuración protegida. La metodología busca establecer una plataforma reproducible para relacionar el modelo analítico, los resultados numéricos y la posterior validación experimental.
+Los sensores capacitivos industriales pueden presentar deriva en la medición y perturbaciones dinámicas cuando se encuentran expuestos a variaciones de temperatura y vibraciones mecánicas. Este trabajo propone una metodología experimental integrada que combina un banco de pruebas multifuncional con un adaptador termomecánico que incorpora un elemento de aleación con memoria de forma (SMA). El objetivo es establecer una plataforma controlada para reproducir condiciones térmicas y vibratorias de operación, medir las variables físicas que afectan la respuesta capacitiva y, posteriormente, validar una configuración de protección mediante la comparación con el sensor sin protección. La metodología combina tres enfoques complementarios: una formulación analítica de la capacitancia y de la respuesta termomecánica, una simulación numérica por elementos finitos en ANSYS y ensayos experimentales controlados con adquisición de datos sincronizada. La plataforma propuesta incluye regulación de temperatura, excitación vibratoria, instrumentación de referencia, protección de emergencia y sincronización temporal entre las mediciones de temperatura, aceleración, desplazamiento y respuesta capacitiva. La etapa numérica está destinada a evaluar la distribución de temperatura, deformación total, esfuerzo equivalente, frecuencias naturales y respuesta armónica, mientras que la etapa experimental proporciona las mediciones físicas correspondientes para su comparación y validación. Este marco establece la infraestructura experimental necesaria para determinar si el adaptador termomecánico propuesto reduce la deformación térmica y la transmisión de vibraciones sin degradar la respuesta capacitiva útil.
 \end{abstract}
 
+\renewcommand\IEEEkeywordsname{Palabras clave}
 \begin{IEEEkeywords}
-sensores capacitivos, caracterización térmica, vibración, banco de pruebas, adaptador termomecánico, SMA, ANSYS, elementos finitos.
+sensor capacitivo, banco de pruebas, adaptador termomecánico, aleación con memoria de forma, temperatura, vibración mecánica, ANSYS, análisis por elementos finitos, adquisición de datos, caracterización experimental
 \end{IEEEkeywords}
 
 % ============================================================
-% CONTENIDO ORIGINAL COMPLETO
+% 1. INTRODUCTION
 % ============================================================
 
-% El archivo original entregado para la extensión colaborativa se conserva íntegramente
-% en esta ruta del repositorio. Las secciones restantes deben mantenerse a continuación.
-
 \section{Introducción}
-La investigación se centra en la caracterización térmica y vibratoria de sensores capacitivos industriales y en el diseño de un adaptador termomecánico basado en una aleación con memoria de forma. Los sensores capacitivos pueden presentar variaciones de respuesta debido tanto a cambios de temperatura como a excitaciones dinámicas. La metodología propuesta integra modelado analítico, simulación numérica mediante elementos finitos y una plataforma experimental modular para estudiar estos efectos de manera trazable.
+
+Los sensores capacitivos se utilizan en sistemas industriales de medición y automatización debido a que las variaciones de capacitancia pueden relacionarse con magnitudes como desplazamiento, posición, proximidad, presión, fuerza e inclinación. Sus pequeños entrehierros de sensado y su alta sensibilidad los hacen apropiados para instrumentación de precisión; sin embargo, estas mismas características hacen que la medición sea susceptible a cambios en la geometría y en el entorno electromagnético que rodea la estructura de sensado \cite{Ghanam2023,Zhang2024,Zaitsev2022}.
+
+La relación idealizada entre la capacitancia y las principales variables geométricas y materiales, utilizada como modelo de referencia para sensores capacitivos y compatible con formulaciones geométricas empleadas en estudios de diseño mediante FEM, puede expresarse como \cite{Keshyagol2024,Ghanam2023}:
+
+\begin{equation}
+C=\frac{\varepsilon A}{d},
+\label{eq:capacitance}
+\end{equation}
+
+donde $C$ representa la capacitancia, $\varepsilon$ es la permitividad efectiva, $A$ es el área efectiva de los electrodos y $d$ es la distancia entre los elementos capacitivos. En consecuencia, una perturbación térmica o mecánica que modifique cualquiera de estas magnitudes puede producir una variación en la salida eléctrica incluso cuando la magnitud física de interés permanezca constante. Para pequeñas variaciones, el cambio relativo de capacitancia puede aproximarse mediante
+
+\begin{equation}
+\frac{\Delta C}{C}\approx\frac{\Delta\varepsilon}{\varepsilon}+\frac{\Delta A}{A}-\frac{\Delta d}{d},
+\label{eq:small_signal}
+\end{equation}
+
+lo que proporciona un vínculo conceptual directo entre las perturbaciones ambientales y el error de medición.
+
+Los efectos térmicos son relevantes debido a que los cambios de temperatura pueden modificar las dimensiones de la estructura de sensado y las propiedades de la región dieléctrica. Ghanam et al. demostraron que sensores capacitivos de presión y fuerza con blindaje pueden operar a temperaturas elevadas mediante una selección adecuada de los materiales estructurales, del proceso de fabricación y de la arquitectura de blindaje; su caracterización incluyó la deriva térmica como uno de los principales parámetros de desempeño \cite{Ghanam2023}. Un enfoque relacionado fue presentado por Hao et al., quienes introdujeron una estructura mecánica anular de compensación térmica para reducir la influencia de la expansión térmica en un sensor capacitivo de presión sellado con gas. Su trabajo mostró experimentalmente que una estructura mecánica adicional adecuadamente diseñada puede reducir de manera significativa el coeficiente de temperatura sin comprometer la sensibilidad a la presión \cite{Hao2012}. Estos estudios respaldan el uso de mecanismos estructurales como complemento de la compensación eléctrica.
+
+La vibración mecánica introduce un segundo mecanismo de perturbación. El movimiento oscilatorio puede modificar el entrehierro de sensado, alterar la alineación de los electrodos y excitar modos estructurales. Zhang et al. analizaron el error de rectificación de vibración en un acelerómetro MEMS capacitivo basado en variación de área y mostraron que las no linealidades inducidas por vibración están acopladas con la amplificación dinámica de la estructura de sensado, especialmente cuando la frecuencia de excitación se aproxima a la resonancia \cite{Zhang2024}. De manera similar, Zaitsev et al. investigaron el sensado capacitivo de vibraciones en ejes rotativos y resaltaron la importancia de la geometría de los electrodos, las regiones activas y de guarda, así como del análisis numérico tridimensional cuando el sensor se emplea para medir movimiento dinámico \cite{Zaitsev2022}. Estos resultados indican que la caracterización vibratoria no debe limitarse a medir la amplitud de excitación; también debe considerar el desplazamiento resultante y el comportamiento modal del conjunto sensor.
+
+Otro aspecto de diseño relevante es el uso de estructuras de blindaje para reducir interacciones no deseadas. Bai et al. propusieron un sensor capacitivo diferencial con una ventana de blindaje conectada a tierra para mejorar la robustez frente a movimientos no deseados e interferencias ambientales \cite{Bai2016}. Más recientemente, Ye et al. desarrollaron una estructura de blindaje cercana a tierra para sensores capacitivos de proximidad conectados a tierra y combinaron análisis por elementos finitos con verificación experimental para reducir las diferencias entre configuraciones de montaje \cite{Ye2025}. Aunque estas contribuciones se enfocan principalmente en la distribución del campo eléctrico y en los efectos del montaje, refuerzan el principio general de que una estructura adicional adecuadamente diseñada puede mejorar la robustez del sensor sin modificar el elemento de sensado.
+
+La combinación de perturbaciones térmicas y vibratorias motiva una solución experimental integrada. Un banco de pruebas que evalúe temperatura y vibración de manera independiente puede no reproducir adecuadamente las condiciones de operación en las que ambas perturbaciones ocurren simultáneamente. Por ello, la plataforma experimental debe proporcionar excitación térmica controlada, excitación mecánica controlada, medición de referencia de las perturbaciones aplicadas y adquisición sincronizada de la respuesta del sensor. La metodología de caracterización experimental descrita en este trabajo se fundamenta en este requisito y busca proporcionar puntos de operación reproducibles para su posterior comparación con las predicciones numéricas.
+
+En paralelo, la solución de protección propuesta consiste en un adaptador termomecánico, denominado también escudo protector en lo sucesivo, diseñado para aislar mecánicamente el sensor capacitivo e incorporar un elemento SMA. Las aleaciones con memoria de forma resultan atractivas debido a que su comportamiento termomecánico puede acoplarse con la temperatura y la carga cíclica. Saedi et al. revisaron los mecanismos de amortiguamiento de las SMA y señalaron que el comportamiento histerético asociado a la transformación de fase termoelástica puede disipar energía mecánica \cite{Saedi2023}. Davarnia et al. resumieron además la dependencia del comportamiento de las SMA de NiTi respecto de la frecuencia de carga, amplitud de deformación, temperatura y carga cíclica, variables directamente relevantes para el diseño de un elemento termomecánico destinado a interactuar con una estructura vibratoria \cite{Davarnia2025}.
+
+Con base en estos antecedentes, este trabajo integra dos desarrollos previamente separados en un único flujo de investigación: (i) el diseño de un banco de pruebas multifuncional para la caracterización térmica y vibratoria controlada, y (ii) el diseño y evaluación numérica de un adaptador termomecánico para la protección del sensor. The central premise is that the test bench provides the controlled environment required to experimentally characterize the unprotected sensor and to validate, in a subsequent stage, the response predicted for the protected configuration. This integration creates a direct link between sensor characterization, numerical design, and experimental validation.
+
+Los objetivos específicos son, por tanto: 1) definir una arquitectura experimental capaz de generar perturbaciones térmicas y vibratorias controladas; 2) formular las variables medibles y los requisitos de sincronización para adquirir temperatura, aceleración, desplazamiento y respuesta capacitiva; 3) establecer una metodología de elementos finitos para el conjunto sensor--adaptador; y 4) definir un procedimiento comparativo para evaluar si el adaptador termomecánico disminuye la deformación inducida térmicamente y la transmisión de vibraciones, manteniendo al mismo tiempo la respuesta útil del sensor. La Fig.~\ref{fig:conceptual} resume la secuencia problema--solución adoptada en el estudio integrado.
+
+% ============================================================
+% FIGURE 1 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{ESPACIO RESERVADO PARA FIGURA 1}}}
+\caption{Integración conceptual del problema, la solución termomecánica propuesta, la simulación numérica y la validación experimental. El diagrama sigue la lógica de investigación definida para el desarrollo combinado del adaptador y del banco de pruebas.}
+\label{fig:conceptual}
+\end{figure}
+
+% ============================================================
+% 2. METHODOLOGY
+% ============================================================
 
 \section{Metodología}
 
-\subsection{Modelo analítico}
-La capacitancia se modela a partir de la geometría efectiva del sensor y de la variación de la separación entre electrodos. La expansión térmica y la deformación estructural modifican esta separación y, por tanto, la respuesta eléctrica. Para el estudio dinámico se consideran las propiedades estructurales, las frecuencias naturales y la transferencia de vibración desde el sistema de excitación hacia el sensor.
+La metodología se estructura para satisfacer dos requisitos complementarios: el adaptador termomecánico propuesto debe analizarse numéricamente y el comportamiento físico del sensor debe poder medirse bajo condiciones controladas. En consecuencia, el estudio combina un método analítico, un método de simulación numérica y un método experimental. La formulación analítica establece las relaciones físicas que deben medirse; el modelo numérico predice la respuesta termomecánica y dinámica; y la plataforma experimental proporciona mediciones de referencia para la comparación y validación.
 
-\subsection{Modelo numérico}
-El análisis numérico se implementa mediante el método de elementos finitos en ANSYS. Se consideran análisis termomecánico, modal y armónico, con las condiciones de frontera definidas de acuerdo con la configuración física del banco de pruebas.
+\subsection{Diseño de la investigación y estrategia integrada de ensayo}
 
-\subsection{Adaptador termomecánico}
-El adaptador incorpora un elemento SMA para aprovechar su comportamiento dependiente de la temperatura y su capacidad de disipación de energía. El objetivo es reducir la deformación inducida térmicamente y atenuar la respuesta vibratoria transmitida al sensor.
+La investigación sigue un diseño comparativo y secuencial. Primero, el sensor capacitivo se caracteriza sin el adaptador de protección para establecer una respuesta de referencia. Segundo, el conjunto sensor--adaptador se modela y analiza mediante simulación por elementos finitos. Tercero, el banco integrado se utiliza para reproducir condiciones térmicas y vibratorias mientras se adquieren las variables requeridas para la validación. Finalmente, las configuraciones de referencia y protegida se comparan empleando condiciones de excitación y métricas de respuesta comunes.
 
-\subsection{Arquitectura experimental}
-La plataforma experimental contempla una fuente de excitación térmica, una fuente de vibración, instrumentación de referencia, medición capacitiva y adquisición sincronizada. Se prevé además registrar la temperatura, frecuencia de excitación, aceleración, desplazamiento y estado de adquisición asociados a cada ensayo.
+Esta secuencia evita tratar el banco de pruebas y el dispositivo de protección como desarrollos independientes. En cambio, el banco se define a partir de las variables requeridas por los modelos numérico y experimental, mientras que los análisis numéricos determinan las magnitudes físicas que deben medirse experimentalmente. Por tanto, la arquitectura resultante constituye tanto una plataforma de evaluación como una infraestructura de validación.
 
-\subsection{Criterios de comparación}
-La configuración de referencia se compara con la configuración protegida bajo condiciones equivalentes. Las métricas principales son deformación total, esfuerzo equivalente, frecuencia natural, amplitud vibratoria y respuesta capacitiva. La aceptación de cada métrica debe establecerse de acuerdo con la incertidumbre de medición y el objetivo de la aplicación final.
+De acuerdo con la estructura metodológica recomendada para un artículo de conferencia, se comparan explícitamente al menos dos métodos: la simulación numérica por elementos finitos y la caracterización experimental controlada. El modelo analítico se utiliza como un tercer método de apoyo y no como sustituto de ninguno de los dos métodos principales.
+
+% ============================================================
+% FIGURE 2 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{ESPACIO RESERVADO PARA FIGURA 2}}}
+\caption{Arquitectura propuesta del banco de pruebas multifuncional, incluyendo excitación térmica, excitación vibratoria, instrumentación de referencia, lectura capacitiva, adquisición sincronizada de datos y funciones de seguridad.}
+\label{fig:bench_architecture}
+\end{figure}
+
+\subsection{Modelo termomecánico analítico}
+
+La etapa analítica se basa en el acoplamiento entre expansión térmica, desplazamiento estructural y respuesta capacitiva. Para un componente isotrópico sometido a un incremento de temperatura $\Delta T$, la \textit{deformación térmica de primer orden} se representa mediante una relación lineal basada en el coeficiente de expansión térmica \cite{Hao2012}:
+
+\begin{equation}
+\varepsilon_{th}=\alpha\Delta T,
+\label{eq:thermal_strain}
+\end{equation}
+
+donde $\alpha$ es el coeficiente de expansión térmica. La \textit{variación dimensional por expansión térmica} asociada puede aproximarse mediante la misma hipótesis de pequeña deformación \cite{Hao2012}:
+
+\begin{equation}
+\Delta L=\alpha L_0\Delta T,
+\label{eq:thermal_length}
+\end{equation}
+
+donde $L_0$ representa la dimensión inicial. Para el entrehierro de sensado, el \textit{modelo de variación del entrehierro} se expresa en primer orden como una suma de las contribuciones térmica y vibratoria \cite{Hao2012,Zhang2024}:
+
+\begin{equation}
+ d(T)\approx d_0+\Delta d_{th}+\Delta d_{vib},
+\label{eq:gap}
+\end{equation}
+
+donde $d_0$ es el entrehierro nominal, $\Delta d_{th}$ es la contribución inducida térmicamente y $\Delta d_{vib}$ es la contribución inducida por la vibración. La sustitución de esta expresión en (1) establece la relación conceptual entre las perturbaciones ambientales y la capacitancia medida \cite{Hao2012,Zhang2024}.
+
+El \textit{modelo dinámico del conjunto sensor--adaptador} se representa en forma matricial mediante la ecuación de movimiento estructural \cite{Zhang2024,Davarnia2025}:
+
+\begin{equation}
+\mathbf{M}\ddot{\mathbf{x}}+\mathbf{C}\dot{\mathbf{x}}+\mathbf{K}\mathbf{x}=\mathbf{F}(t),
+\label{eq:dynamic}
+\end{equation}
+
+donde $\mathbf{M}$, $\mathbf{C}$ y $\mathbf{K}$ son, respectivamente, las matrices de masa, amortiguamiento y rigidez. La forma matricial empleada es la representación estándar de un sistema lineal estructural sometido a una fuerza externa y constituye la base para los análisis de respuesta armónica utilizados posteriormente \cite{Zhang2024,Davarnia2025}. El \textit{problema modal sin amortiguamiento} correspondiente se obtiene de la formulación de autovalores estructurales \cite{Zhang2024,Zaitsev2022}:
+
+\begin{equation}
+\left(\mathbf{K}-\omega_n^2\mathbf{M}\right)\boldsymbol{\phi}_n=0,
+\label{eq:modal}
+\end{equation}
+
+que define las frecuencias naturales $\omega_n$ y las formas modales $\boldsymbol{\phi}_n$. La ecuación de autovalores se emplea para identificar los modos estructurales que condicionarán la selección de frecuencias de ensayo \cite{Zhang2024,Zaitsev2022}. Estas magnitudes se utilizan para seleccionar los puntos de ensayo vibratorio y determinar si una frecuencia de operación se encuentra próxima a una resonancia estructural. La importancia de considerar la resonancia y la amplificación dinámica en el sensado capacitivo está respaldada por análisis previos de no linealidad inducida por vibración en dispositivos MEMS capacitivos \cite{Zhang2024}.
+
+Para el adaptador termomecánico, el elemento SMA se introduce como un componente mecánico dependiente de la temperatura. En lugar de asumir una respuesta elástica constante para todas las condiciones de operación, el modelo considera la variación de las propiedades mecánicas con la temperatura y la posibilidad de disipación de energía histerética bajo carga cíclica. Esta formulación es consistente con trabajos publicados sobre amortiguamiento mediante SMA, que identifican la temperatura, la frecuencia de carga, la amplitud de deformación y el ciclado como variables importantes para la respuesta mecánica resultante \cite{Saedi2023,Davarnia2025}. Hossain et al. también describen la respuesta termomecánica acoplada y el potencial de los SMA en aplicaciones de ingeniería durante las transformaciones de fase \cite{Hossain2025}.
+
+\subsection{Método de simulación por elementos finitos}
+
+El método numérico se implementa mediante el método de elementos finitos (FEM) en ANSYS. El objetivo principal de esta etapa es comparar el conjunto del sensor sin adaptador con el conjunto sensor--adaptador protegido bajo condiciones de frontera térmicas y mecánicas equivalentes. El modelo numérico se divide en tres niveles de análisis.
+
+Primero, se emplea un análisis termomecánico para determinar el campo de temperatura, la deformación térmica y el esfuerzo equivalente generado por la condición de frontera térmica impuesta. Las principales salidas son la distribución de temperatura, la deformación total máxima, la deformación en el entrehierro de sensado y las regiones de concentración de esfuerzos. Estas salidas se relacionan directamente con los mecanismos expresados en (2)--(4).
+
+Segundo, se realiza un análisis modal para determinar las frecuencias naturales y las formas modales del conjunto del sensor. La estructura de referencia y la configuración protegida se comparan para identificar los cambios en las características dinámicas inducidos por el adaptador. Este paso es especialmente importante debido a que el adaptador no debe limitarse a incrementar la rigidez estática; también debe evitar introducir una resonancia desfavorable próxima al rango de operación previsto.
+
+Tercero, se utiliza un análisis de respuesta armónica para estimar la respuesta en régimen permanente ante una excitación sinusoidal. Las principales variables de respuesta son la amplitud de desplazamiento en la región de sensado, el desplazamiento transmitido a través del adaptador y el esfuerzo dinámico correspondiente. El análisis proporciona la base numérica para definir los niveles de vibración y los puntos de frecuencia que se reproducirán experimentalmente.
+
+El procedimiento de simulación incluye la definición de la geometría, asignación de materiales, generación de malla, definición de contactos y condiciones de frontera, solución y posprocesamiento. El refinamiento de malla debe concentrarse en la región del entrehierro del sensor, las interfaces, las zonas de montaje y el área de unión del elemento SMA, debido a que se esperan gradientes elevados de desplazamiento y esfuerzo en estas regiones. El modelo final se considerará adecuado para la comparación experimental únicamente después de comprobar la convergencia de malla y verificar que las salidas seleccionadas sean insensibles a un refinamiento adicional dentro de la tolerancia adoptada.
+
+% ============================================================
+% FIGURE 3 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{ESPACIO RESERVADO PARA FIGURA 3}}}
+\caption{Secuencia propuesta de modelado analítico, simulación por elementos finitos, ensayo experimental y validación. Las mismas variables físicas se mantienen durante todas las etapas para permitir una comparación directa.}
+\label{fig:method_sequence}
+\end{figure}
+
+\subsection{Diseño del banco de pruebas multifuncional}
+
+El banco de pruebas se concibe como una plataforma modular capaz de aplicar, de manera independiente o simultánea, temperatura y vibración mecánica al sensor capacitivo. Su arquitectura se basa en seis bloques funcionales: excitación y regulación térmica, excitación vibratoria, instrumentación de referencia, medición capacitiva, adquisición y sincronización de datos, y seguridad.
+
+\subsubsection{Subsistema térmico}
+
+El subsistema térmico es responsable de generar una condición de temperatura controlada alrededor del sensor y de la estructura de protección. Dependiendo de la implementación disponible en el laboratorio, la fuente de calor puede ser un calentador resistivo controlado, una placa calefactora u otro actuador térmico equivalente. La temperatura se mide mediante un termopar o un sensor de referencia tipo PT100 ubicado cerca del volumen de ensayo y, cuando sea necesario, mediante un sensor adicional situado próximo al conjunto capacitivo. Un controlador de realimentación regula el actuador térmico para alcanzar y mantener el punto de consigna seleccionado.
+
+El procedimiento térmico debe distinguir entre el punto de consigna del controlador y la temperatura real del conjunto de sensado. Por esta razón, la temperatura empleada para el análisis posterior debe ser la correspondiente a la ubicación del sensor y no únicamente la asociada al comando del actuador. El subsistema térmico también debe incluir protección contra sobretemperatura y una ruta de desconexión de emergencia.
+
+\subsubsection{Subsistema vibratorio}
+
+El subsistema vibratorio utiliza un excitador o un actuador equivalente para imponer una excitación mecánica controlada. El sensor y el adaptador se montan sobre la misma interfaz mecánica, de modo que el acelerómetro de referencia mida la excitación que realmente se transmite al elemento bajo ensayo. Por tanto, la variable experimental de interés no es únicamente la señal comandada al actuador, sino la aceleración medida en la ubicación de montaje.
+
+Los ensayos de vibración deben cubrir un intervalo de frecuencias definido a partir de la simulación modal y de la capacidad operativa del actuador. Se presta especial atención a las frecuencias próximas a los modos naturales predichos numéricamente, ya que el propósito de la caracterización es determinar si el adaptador termomecánico modifica la respuesta dinámica transmitida.
+
+El banco debe disponer de regulación de amplitud en lazo cerrado siempre que sea posible. En esta configuración, la señal del acelerómetro se utiliza como variable de realimentación y el comando del actuador se ajusta para mantener aproximadamente constante la amplitud de vibración a medida que cambia la frecuencia. Esta configuración es coherente con la arquitectura del proyecto definida para el control de amplitud y la sincronización.
+
+\subsubsection{Mediciones de referencia y de salida}
+
+Las variables experimentales se agrupan en variables analógicas continuas y estados digitales discretos. Las principales variables analógicas son: temperatura de ensayo, aceleración dinámica, salida capacitiva y desplazamiento del entrehierro del sensor. Los principales estados digitales son: estado del calentador, estado del excitador, estado del enfriamiento, estado del paro de emergencia y estado de adquisición, además del disparo de sincronización. Esta organización sigue la estructura de variables definida para la plataforma experimental integrada.
+
+La inclusión de la medición de desplazamiento es particularmente importante. Un cambio en la capacitancia por sí solo no permite distinguir si la respuesta observada es causada por una modificación de las propiedades dieléctricas, una deformación estructural o un movimiento inducido por la vibración. Medir de forma independiente el desplazamiento del entrehierro proporciona una referencia física para interpretar la respuesta eléctrica.
+
+\begin{table}[t]
+\caption{Variables principales y funciones de medición del banco de pruebas}
+\label{tab:variables}
+\centering
+\footnotesize
+\begin{tabular}{p{0.26\columnwidth} p{0.25\columnwidth} p{0.37\columnwidth}}
+\toprule
+\textbf{Variable} & \textbf{Tipo / Unidad} & \textbf{Finalidad en la validación} \\
+\midrule
+Temperatura & Continua, $^{\circ}$C & Establecer la condición térmica real en el sensor \\
+Aceleración & Continua, m/s$^2$ o g & Cuantificar la amplitud de vibración aplicada \\
+Respuesta capacitiva & Continua, pF o V & Evaluar la salida y deriva del sensor \\
+Desplazamiento del entrehierro & Continua, $\mu$m o mm & Identificar el movimiento inducido térmica y dinámicamente \\
+Estado del calentador & Digital & Registrar la operación del actuador térmico \\
+Estado del excitador & Digital & Registrar la operación del actuador vibratorio \\
+Estado del enfriamiento & Digital & Registrar la condición de enfriamiento activo \\
+E-STOP & Digital & Proporcionar información de desconexión de seguridad \\
+Estado del DAQ & Digital & Identificar intervalos de adquisición \\
+Disparo / Sincronización & Digital & Alinear los datos térmicos, vibratorios y de capacitancia \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Adquisición y sincronización de datos}
+
+El sistema de adquisición de datos debe registrar la salida del sensor y las variables de referencia sobre una base temporal común. La sincronización es necesaria porque el objetivo principal es establecer relaciones entre temperatura, aceleración, desplazamiento y capacitancia, en lugar de analizar cada variable de manera independiente.
+
+La cadena mínima de adquisición consta de un canal de medición de temperatura, un canal de acelerómetro, un canal de medición de desplazamiento y la interfaz del sensor capacitivo. Los canales digitales se utilizan para el estado del calentador, el estado del excitador, el paro de emergencia, el estado de adquisición y el disparo. Todos los canales continuos deben muestrearse a una frecuencia suficientemente mayor que la máxima componente frecuencial esperada en los ensayos de vibración. La frecuencia de muestreo exacta se fijará después de establecer el ancho de banda operativo del sensor, la instrumentación y el excitador.
+
+Cada registro de ensayo debe contener, como mínimo, el identificador del experimento, la configuración del sensor (referencia o protegida), el punto de consigna de temperatura, la temperatura medida, la frecuencia de vibración, la amplitud de aceleración de referencia, el desplazamiento medido, la salida capacitiva y las variables de estado. Un disparo sincronizado debe marcar el inicio de cada condición de ensayo para facilitar la segmentación de las partes transitoria y estacionaria del registro.
+
+La caracterización experimental de sensores capacitivos se beneficia de reportar no solo la salida instantánea, sino también métricas de estabilidad y repetibilidad. Schwenck et al. demostraron una estrategia de caracterización que incluyó estabilidad del offset con temperatura, histéresis, no repetibilidad, medidas relacionadas con el ruido y desviación de Allan para un sensor capacitivo \cite{Schwenck2021}. Estos conceptos motivan la inclusión de métricas de repetibilidad y estabilidad en la presente metodología, aunque los resultados definitivos se reservan intencionalmente para la sección de resultados del artículo completo.
+
+\subsection{Definición del adaptador termomecánico}
+
+El componente de protección se define como una interfaz mecánica entre el soporte del banco de pruebas y el sensor capacitivo. Su función no es interferir con los electrodos de sensado, sino reducir la transferencia de deformación y vibración inducidas por el entorno hacia la región de sensado. El adaptador incorpora un elemento SMA seleccionado de acuerdo con el intervalo de temperatura de operación requerido y la respuesta mecánica objetivo.
+
+El diseño conceptual debe satisfacer cuatro restricciones simultáneas. Primero, la estructura debe mantener la geometría nominal del sensor en la condición de temperatura de referencia. Segundo, debe considerarse la expansión térmica del adaptador y del sensor para que el cambio resultante del entrehierro de sensado permanezca dentro del rango aceptable. Tercero, el adaptador debe evitar una reducción del ancho de banda útil de vibración causada por una nueva resonancia estructural dentro del rango de operación. Cuarto, el elemento SMA debe permanecer dentro de su estado termomecánico admisible durante todas las condiciones de ensayo.
+
+Las variables de diseño pueden incluir las dimensiones del adaptador, la rigidez del montaje, la geometría de la interfaz, las dimensiones del elemento SMA, la precarga y la selección de materiales. Las salidas de diseño consideradas en la etapa numérica son la deformación térmica máxima, el desplazamiento del entrehierro, el esfuerzo equivalente, las frecuencias naturales y la amplitud de desplazamiento armónico. Estas variables establecen un vínculo directo entre las etapas numérica y experimental.
+
+% ============================================================
+% FIGURE 4 PLACEHOLDER
+% ============================================================
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.05in][c]{0.94\columnwidth}{\centering\textit{ESPACIO RESERVADO PARA FIGURA 4}}}
+\caption{Principio conceptual de funcionamiento del adaptador termomecánico que incorpora un elemento SMA. El adaptador se evalúa como una interfaz estructural destinada a limitar la deformación inducida térmicamente y la transmisión de vibraciones hacia la región de sensado.}
+\label{fig:adapter_concept}
+\end{figure}
+
+\subsection{Matriz de ensayos experimentales}
+
+El plan experimental se define alrededor de combinaciones controladas de temperatura y frecuencia de vibración. Primero se evalúa el sensor de referencia en la condición inicial. Luego se realizan ensayos adicionales a niveles de temperatura y frecuencias de vibración seleccionados. Las mismas combinaciones se aplican posteriormente al conjunto sensor--adaptador, de modo que el efecto de la protección pueda cuantificarse bajo condiciones equivalentes.
+
+Los niveles de temperatura deben seleccionarse a partir del rango de operación previsto para la aplicación y del rango seguro del sensor capacitivo seleccionado, de los materiales del adaptador y de la instrumentación. De manera similar, las frecuencias de vibración deben seleccionarse a partir del análisis modal numérico y de los límites mecánicos del excitador. Al menos una condición debe ubicarse suficientemente lejos de la región de resonancia principal para representar un caso de baja perturbación dinámica, mientras que otras condiciones deben explorar la proximidad de modos relevantes sin exceder los límites seguros de operación.
+
+Para cada condición de ensayo se recomienda la siguiente secuencia: estabilización en la temperatura objetivo; verificación de la salida del sensor antes de aplicar vibración; barrido vibratorio controlado o excitación a una frecuencia seleccionada; adquisición sincronizada de todas las variables; retorno a la condición de referencia; y repetición de la medición para evaluar la repetibilidad. Cuando las perturbaciones térmica y vibratoria se aplican simultáneamente, debe registrarse el intervalo requerido para la estabilización térmica, de modo que los efectos transitorios no se confundan con el comportamiento en régimen estacionario.
+
+La Tabla~\ref{tab:testmatrix} presenta la estructura de la matriz de ensayos planificada sin imponer valores numéricos que aún no hayan sido establecidos experimentalmente. Esto mantiene la metodología reproducible y evita asumir valores no sustentados sobre el intervalo operativo final.
+
+\begin{table}[t]
+\caption{Estructura de la matriz de ensayos experimentales}
+\label{tab:testmatrix}
+\centering
+\footnotesize
+\begin{tabular}{p{0.20\columnwidth} p{0.18\columnwidth} p{0.18\columnwidth} p{0.28\columnwidth}}
+\toprule
+\textbf{Configuración} & \textbf{Temperatura} & \textbf{Vibración} & \textbf{Principales salidas} \\
+\midrule
+Sensor de referencia & Referencia & Ninguna & Capacitancia, temperatura \\
+Sensor de referencia & Niveles seleccionados & Ninguna & Deriva térmica, desplazamiento del entrehierro \\
+Sensor de referencia & Niveles seleccionados & Frecuencias seleccionadas & Capacitancia, aceleración, desplazamiento \\
+Adaptador + sensor & Referencia & Ninguna & Geometría de referencia, capacitancia \\
+Adaptador + sensor & Niveles seleccionados & Ninguna & Deformación térmica, capacitancia \\
+Adaptador + sensor & Niveles seleccionados & Frecuencias seleccionadas & Aceleración transmitida, desplazamiento, capacitancia \\
+Adaptador + sensor & Condiciones combinadas & Excitación combinada & Indicadores integrados de robustez \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Criterios de comparación y validación}
+
+La estrategia de validación compara las respuestas numérica y experimental bajo condiciones de frontera equivalentes. La configuración de referencia se utiliza para cuantificar la perturbación antes de la protección, mientras que la configuración protegida se evalúa para determinar el cambio producido por el adaptador. Las principales variables de comparación son la distribución de temperatura, la deformación del entrehierro, la amplitud de vibración, la frecuencia natural y la salida capacitiva.
+
+El \textit{indicador de atenuación relativo} se define en este trabajo para cuantificar la mejora entre la configuración de referencia y la protegida; su forma porcentual permite comparar distintas magnitudes normalizadas \cite{Schwenck2021}:
+
+\begin{equation}
+\eta_R=\left(1-\frac{R_{protected}}{R_{baseline}}\right)\times100\%,
+\label{eq:attenuation}
+\end{equation}
+
+donde $R_{baseline}$ y $R_{protected}$ son las amplitudes de respuesta medidas para las configuraciones sin protección y protegida, respectivamente. Para la deriva térmica, la comparación puede expresarse mediante la diferencia del cambio de capacitancia por unidad de temperatura. Para la \textit{comparación relativa entre resultados experimentales y numéricos}, se adopta en este trabajo el siguiente indicador de error porcentual:
+
+\begin{equation}
+E_R=\frac{|R_{exp}-R_{FEA}|}{|R_{exp}|}\times100\%,
+\label{eq:error}
+\end{equation}
+
+donde $R_{exp}$ es el valor experimental y $R_{FEA}$ es la predicción por elementos finitos para la misma condición de ensayo. El umbral aceptable para cada métrica debe establecerse de acuerdo con la incertidumbre de medición y el objetivo de la aplicación final, en lugar de asumirse de antemano.
+
+La arquitectura experimental también contempla la posibilidad de supervisar un disparo de sincronización y el estado del circuito de blindaje activo o de guarda cuando dicha funcionalidad esté presente. Esto permite separar los efectos del blindaje eléctrico de los efectos de protección puramente mecánica, lo cual es relevante debido a que los sensores capacitivos pueden ser sensibles a capacitancias parásitas y acoplamientos externos. Trabajos previos sobre sensores capacitivos con blindaje respaldan la necesidad de considerar explícitamente estas interacciones durante la caracterización \cite{Aksoy2022,Ye2025}.
+
+Finalmente, la metodología completa está diseñada para que los resultados definitivos puedan presentarse posteriormente mediante tablas y gráficos que comparen las configuraciones de referencia y protegida. De acuerdo con los criterios del artículo de conferencia, esta sección establece los métodos, variables, ecuaciones, arquitectura de ensayo y criterios de comparación; los resultados numéricos, las mediciones experimentales, la discusión de las coincidencias o discrepancias, las conclusiones y la ampliación final de referencias se reservan para las secciones posteriores del manuscrito completo.
 
 % ============================================================
 % REFERENCES
