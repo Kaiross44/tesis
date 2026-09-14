@@ -1,8 +1,20 @@
-# Tesis Doctoral
+# `TESIS`
 
-> **Banco de pruebas multifuncional y adaptador termomecánico: investigación rigurosa en caracterización térmica y dinámica de sensores capacitivos con elemento de memoria de forma**
+<div align="center">
 
-## Propósito
+### `RESEARCH / THERMOMECHANICS / SENSING / VALIDATION`
+
+**Banco de pruebas multifuncional y adaptador termomecánico: investigación rigurosa en caracterización térmica y dinámica de sensores capacitivos con elemento de memoria de forma.**
+
+`CAPACITIVE SENSORS` · `ANSYS` · `SMA` · `EXPERIMENTS` · `OVERLEAF`
+
+**CYAN ━ TURQUOISE ━ BLACK ━ ORANGE**
+
+</div>
+
+---
+
+## ▣ Propósito
 
 Investigación doctoral sistemática abordando:
 
@@ -11,7 +23,7 @@ Investigación doctoral sistemática abordando:
 - **Síntesis de adaptador** – Diseño e integración de elemento SMA (Shape Memory Alloy)
 - **Metodología reproducible** – Protocolo riguroso de adquisición, procesamiento y análisis
 
-## Estructura
+## ◈ Estructura
 
 ```text
 tesis/
@@ -26,21 +38,28 @@ tesis/
 └── overleaf/             # Integración documentada
 ```
 
-## Rigor metodológico
+## ⟐ Rigor metodológico
 
 - Trazabilidad completa de datos experimentales
 - Validación cruzada: análisis teórico, numérico y experimental
 - Protocolos documentados e independencia de licencias propietarias
 - Reproducibilidad garantizada mediante scripts parametrizados
 
-## Principios
+## ◇ Principios
 
 Esta investigación se construye sobre:
+
 - **Integridad científica sin compromisos**
 - **Transparencia en procedimientos y decisiones**
 - **Análisis crítico de supuestos y limitaciones**
 - **Contribución genuina al conocimiento técnico**
 
+## `DOCUMENT / SIMULATE / MEASURE / VALIDATE`
+
+La tesis se mantiene separada de `engineering-tools`: este repositorio es la fuente de verdad del trabajo académico, sus fuentes LaTeX, referencias, modelos, experimentos y resultados.
+
 ---
 
-**Investigación doctoral activa** | Sistematización rigurosa de hallazgos científicos
+### `RESEARCH / TRACEABILITY / REPRODUCIBILITY`
+
+**Desarrollado por Kaiross44**
