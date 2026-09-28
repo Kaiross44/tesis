@@ -44,7 +44,6 @@ ARCH_DEFAULTS = {
     },
     "H2": {
         "core_radius_mm": 2.5,
-        "guard_radius_mm": 4.5,
         "gap_mm": 0.8,
         "guard_width_mm": 1.2,
     },
@@ -203,7 +202,7 @@ class H2Model(ArchitectureModel):
         p = self.params
         z = -SENSOR_LENGTH_MM / 2.0
         gap = p["gap_mm"]
-        guard_inner = p["guard_radius_mm"]
+        guard_inner = p["core_radius_mm"] + p["gap_mm"]
         guard_outer = guard_inner + p["guard_width_mm"]
 
         core = make_front_disc(p["core_radius_mm"], z + 0.25, -7.0 * explosion)
@@ -522,18 +521,17 @@ class M18Dashboard:
         tab = ttk.Frame(notebook)
         notebook.add(tab, text="H1")
         ttk.Label(tab, text="Central + auxiliar anular").pack(pady=10)
-        self._architecture_slider(tab, "H1", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
-        self._architecture_slider(tab, "H1", "gap_mm", "Entrehierro g [mm]", 0.1, 1.0)
+        self._architecture_slider(tab, "H1", "core_radius_mm", "Radio core [mm]", 0.5, 5.0)
+        self._architecture_slider(tab, "H1", "gap_mm", "Entrehierro g [mm]", 0.1, 3.0)
         self._architecture_slider(tab, "H1", "aux_outer_radius_mm", "Radio externo auxiliar [mm]", 3.0, 8.5)
 
     def _build_h2_tab(self, notebook: ttk.Notebook) -> None:
         tab = ttk.Frame(notebook)
         notebook.add(tab, text="H2")
         ttk.Label(tab, text="Central + guarda/blindaje").pack(pady=10)
-        self._architecture_slider(tab, "H2", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
-        self._architecture_slider(tab, "H2", "guard_radius_mm", "Radio interno guarda [mm]", 2.0, 8.0)
-        self._architecture_slider(tab, "H2", "gap_mm", "Entrehierro g [mm]", 0.1, 3.0)
-        self._architecture_slider(tab, "H2", "guard_width_mm", "Ancho guarda [mm]", 0.2, 1.5)
+        self._architecture_slider(tab, "H2", "core_radius_mm", "Radio core [mm]", 0.5, 6.0)
+        self._architecture_slider(tab, "H2", "gap_mm", "Entrehierro g [mm]", 0.1, 1.5)
+        self._architecture_slider(tab, "H2", "guard_width_mm", "Ancho guarda [mm]", 0.2, 1.0)
 
     def _build_h3_tab(self, notebook: ttk.Notebook) -> None:
         tab = ttk.Frame(notebook)
@@ -542,7 +540,7 @@ class M18Dashboard:
         self._architecture_slider(tab, "H3", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
         self._architecture_slider(tab, "H3", "shield_inner_radius_mm", "Radio interno shield [mm]", 2.0, 6.0)
         self._architecture_slider(tab, "H3", "shield_outer_radius_mm", "Radio externo shield [mm]", 2.5, 7.0)
-        self._architecture_slider(tab, "H3", "gap_mm", "Entrehierro g [mm]", 0.1, 2.0)
+        self._architecture_slider(tab, "H3", "gap_mm", "Entrehierro externo g [mm]", 0.1, 1.0)
 
     def _build_h4_tab(self, notebook: ttk.Notebook) -> None:
         tab = ttk.Frame(notebook)
