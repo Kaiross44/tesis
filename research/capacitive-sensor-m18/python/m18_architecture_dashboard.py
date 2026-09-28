@@ -19,7 +19,6 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
-import numpy as np
 import pyvista as pv
 
 
@@ -627,8 +626,12 @@ class M18Dashboard:
 
     def _pump(self) -> None:
         """Mantiene Tkinter y la ventana VTK sincronizadas en Spyder."""
+        try:
+            self.plotter.update()
+        except Exception:
+            return
         if self.root.winfo_exists():
-            self.root.after(100, self._pump)
+            self.root.after(50, self._pump)
 
     def show(self) -> None:
         # La ventana VTK se muestra de forma interactiva.
