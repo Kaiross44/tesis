@@ -72,32 +72,38 @@ def mm(value: float) -> float:
 
 
 def target_z(distance_mm: float) -> float:
-    """Posición del objetivo delante de la cara activa."""
-    return mm(SENSOR_LENGTH_MM / 2.0 + distance_mm)
+    """Posición del objetivo delante de la cara activa (-Z)."""
+    return -mm(SENSOR_LENGTH_MM / 2.0 + distance_mm)
 
 
-def make_hollow_cylinder(
+def make_annular_electrode(
     outer_radius_mm: float,
     inner_radius_mm: float,
-    height_mm: float,
     center_z_mm: float,
+    thickness_mm: float = 0.2,
 ) -> pv.PolyData:
-    """Cilindro hueco aproximado mediante boolean difference."""
-    outer = pv.Cylinder(
-        radius=mm(outer_radius_mm),
-        height=mm(height_mm),
-        direction=(0, 0, 1),
+    """Electrodo anular frontal robusto, sin booleanos de VTK."""
+    if inner_radius_mm <= 0 or inner_radius_mm >= outer_radius_mm:
+        raise ValueError(
+            "Debe cumplirse 0 < inner_radius_mm < outer_radius_mm."
+        )
+
+    ring = pv.Disc(
+        inner=mm(inner_radius_mm),
+        outer=mm(outer_radius_mm),
         center=(0, 0, mm(center_z_mm)),
-        resolution=96,
+        normal=(0, 0, 1),
+        r_res=1,
+        c_res=96,
     )
-    inner = pv.Cylinder(
-        radius=mm(inner_radius_mm),
-        height=mm(height_mm + 0.2),
-        direction=(0, 0, 1),
-        center=(0, 0, mm(center_z_mm)),
-        resolution=96,
+
+    # Espesor visual/geométrico pequeño para diferenciar el electrodo.
+    # Extrude no requiere booleanos y mantiene una malla simple.
+    extruded = ring.extrude(
+        vector=(0, 0, mm(thickness_mm)),
+        capping=True,
     )
-    return outer.boolean_difference(inner)
+    return extruded.triangulate()
 
 
 def make_sensor_body(explosion: float) -> pv.PolyData:
@@ -177,7 +183,7 @@ class H1Model(ArchitectureModel):
         gap = p["gap_mm"]
 
         core = make_front_disc(p["core_radius_mm"], z + 0.2, -6.0 * explosion)
-        aux = make_hollow_cylinder(
+        aux = make_annular_electrode(
             p["aux_outer_radius_mm"],
             p["core_radius_mm"] + gap,
             0.8,
@@ -200,7 +206,7 @@ class H2Model(ArchitectureModel):
         guard_outer = guard_inner + p["guard_width_mm"]
 
         core = make_front_disc(p["core_radius_mm"], z + 0.25, -7.0 * explosion)
-        guard = make_hollow_cylinder(
+        guard = make_annular_electrode(
             guard_outer,
             guard_inner,
             0.8,
@@ -221,14 +227,14 @@ class H3Model(ArchitectureModel):
         z = -SENSOR_LENGTH_MM / 2.0
 
         core = make_front_disc(p["core_radius_mm"], z + 0.3, -7.5 * explosion)
-        shield = make_hollow_cylinder(
+        shield = make_annular_electrode(
             p["shield_outer_radius_mm"],
             p["shield_inner_radius_mm"],
             0.8,
             z + 0.3,
         )
 
-        outer = make_hollow_cylinder(
+        outer = make_annular_electrode(
             SENSOR_DIAMETER_MM / 2.0 - 1.0,
             p["shield_outer_radius_mm"] + p["gap_mm"],
             1.0,
@@ -369,7 +375,7 @@ class M18Dashboard:
         self.plotter.set_background("#11131A")
 
         self.actors: dict[str, list] = {name: [] for name in ARCHITECTURES}
-        self.metric_actors: dict[str, object] = {}
+        self.text_actors: dict[str, list] = {name: [] for name in ARCHITECTURES}
 
         self.root = tk.Tk()
         self.root.title("M18 — Control Panel")
@@ -562,6 +568,12 @@ class M18Dashboard:
             except Exception:
                 pass
         self.actors[name] = []
+        for text_actor in self.text_actors[name]:
+            try:
+                self.plotter.remove_actor(text_actor)
+            except Exception:
+                pass
+        self.text_actors[name] = []
 
     def _draw_architecture(self, index: int, name: str) -> None:
         self._clear_architecture(index, name)
@@ -603,12 +615,12 @@ class M18Dashboard:
         )
         self.actors[name].append(target_actor)
 
-        self.plotter.add_text(
+        title_actor = self.plotter.add_text(
             model.title,
             position="upper_left",
             font_size=11,
         )
-        self.plotter.add_text(
+        metric_actor = self.plotter.add_text(
             update_metrics(
                 model,
                 self.global_vars["target_distance_mm"],
@@ -616,6 +628,7 @@ class M18Dashboard:
             position="lower_left",
             font_size=9,
         )
+        self.text_actors[name].extend([title_actor, metric_actor])
 
         self.plotter.view_isometric()
         self.plotter.reset_camera()
