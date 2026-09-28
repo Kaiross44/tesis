@@ -31,6 +31,10 @@ from typing import Callable
 
 import pyvista as pv
 
+# Spyder usa una consola IPython; forzamos una ventana VTK nativa
+# en lugar del backend Jupyter/Trame.
+pv.set_jupyter_backend("none")
+
 
 # ============================================================
 # CONFIGURACIÓN DEL SENSOR
@@ -1492,6 +1496,7 @@ class M18Study:
         self.plotter.show(
             interactive=True,
             auto_close=True,
+            jupyter_backend="none",
         )
 
 
