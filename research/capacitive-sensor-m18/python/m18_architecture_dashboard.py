@@ -89,7 +89,8 @@ def make_annular_electrode(
 
     if height_mm <= 0:
         raise ValueError("El espesor del electrodo debe ser positivo.")
-        ring = pv.Disc(
+
+    ring = pv.Disc(
         inner=mm(inner_radius_mm),
         outer=mm(outer_radius_mm),
         center=(0, 0, mm(center_z_mm)),
