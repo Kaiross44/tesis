@@ -739,6 +739,12 @@ class M18Study:
         # ----------------------------------------------------
 
         self.info_actor = None
+        self.text_actors = {
+            "H1": [],
+            "H2": [],
+            "H3": [],
+            "H4": [],
+        }
 
         # ----------------------------------------------------
         # Widgets
@@ -816,6 +822,25 @@ class M18Study:
                 pass
 
         self.actors[
+            architecture
+        ] = []
+
+        for text_actor in self.text_actors[
+            architecture
+        ]:
+
+            try:
+
+                self.plotter.remove_actor(
+                    text_actor,
+                    render=False,
+                )
+
+            except Exception:
+
+                pass
+
+        self.text_actors[
             architecture
         ] = []
 
@@ -950,11 +975,18 @@ class M18Study:
             ),
         }[architecture]
 
-        self.plotter.add_text(
+        title_actor = self.plotter.add_text(
             title,
             position="upper_left",
             font_size=12,
+            name=f"{architecture}_title",
             render=False,
+        )
+
+        self.text_actors[
+            architecture
+        ].append(
+            title_actor
         )
 
         # ----------------------------------------------------
@@ -978,11 +1010,18 @@ class M18Study:
             f"{cproxy:.3f} pF"
         )
 
-        self.plotter.add_text(
+        info_actor = self.plotter.add_text(
             info,
             position="lower_left",
             font_size=9,
+            name=f"{architecture}_info",
             render=False,
+        )
+
+        self.text_actors[
+            architecture
+        ].append(
+            info_actor
         )
 
         # ----------------------------------------------------
@@ -1101,11 +1140,10 @@ class M18Study:
 
             self.plotter.add_radio_button_widget(
                 callback=(
-                    lambda checked,
-                    arch=architecture:
+                    lambda arch=architecture:
                     self.select_architecture(
                         arch,
-                        checked,
+                        True,
                     )
                 ),
                 radio_button_group=(
