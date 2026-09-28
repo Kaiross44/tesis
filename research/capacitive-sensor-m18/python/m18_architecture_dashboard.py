@@ -88,7 +88,9 @@ def make_annular_electrode(
             "Debe cumplirse 0 < inner_radius_mm < outer_radius_mm."
         )
 
-    ring = pv.Disc(
+    if height_mm <= 0:
+        raise ValueError("El espesor del electrodo debe ser positivo.")
+        ring = pv.Disc(
         inner=mm(inner_radius_mm),
         outer=mm(outer_radius_mm),
         center=(0, 0, mm(center_z_mm)),
@@ -521,7 +523,7 @@ class M18Dashboard:
         notebook.add(tab, text="H1")
         ttk.Label(tab, text="Central + auxiliar anular").pack(pady=10)
         self._architecture_slider(tab, "H1", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
-        self._architecture_slider(tab, "H1", "gap_mm", "Entrehierro g [mm]", 0.1, 3.0)
+        self._architecture_slider(tab, "H1", "gap_mm", "Entrehierro g [mm]", 0.1, 1.0)
         self._architecture_slider(tab, "H1", "aux_outer_radius_mm", "Radio externo auxiliar [mm]", 3.0, 8.5)
 
     def _build_h2_tab(self, notebook: ttk.Notebook) -> None:
@@ -531,15 +533,15 @@ class M18Dashboard:
         self._architecture_slider(tab, "H2", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
         self._architecture_slider(tab, "H2", "guard_radius_mm", "Radio interno guarda [mm]", 2.0, 8.0)
         self._architecture_slider(tab, "H2", "gap_mm", "Entrehierro g [mm]", 0.1, 3.0)
-        self._architecture_slider(tab, "H2", "guard_width_mm", "Ancho guarda [mm]", 0.2, 3.0)
+        self._architecture_slider(tab, "H2", "guard_width_mm", "Ancho guarda [mm]", 0.2, 1.5)
 
     def _build_h3_tab(self, notebook: ttk.Notebook) -> None:
         tab = ttk.Frame(notebook)
         notebook.add(tab, text="H3")
         ttk.Label(tab, text="Core + shield + electrodo externo").pack(pady=10)
         self._architecture_slider(tab, "H3", "core_radius_mm", "Radio core [mm]", 0.5, 7.0)
-        self._architecture_slider(tab, "H3", "shield_inner_radius_mm", "Radio interno shield [mm]", 2.0, 8.0)
-        self._architecture_slider(tab, "H3", "shield_outer_radius_mm", "Radio externo shield [mm]", 2.5, 8.5)
+        self._architecture_slider(tab, "H3", "shield_inner_radius_mm", "Radio interno shield [mm]", 2.0, 6.0)
+        self._architecture_slider(tab, "H3", "shield_outer_radius_mm", "Radio externo shield [mm]", 2.5, 7.0)
         self._architecture_slider(tab, "H3", "gap_mm", "Entrehierro g [mm]", 0.1, 2.0)
 
     def _build_h4_tab(self, notebook: ttk.Notebook) -> None:
