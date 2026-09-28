@@ -79,8 +79,8 @@ def target_z(distance_mm: float) -> float:
 def make_annular_electrode(
     outer_radius_mm: float,
     inner_radius_mm: float,
+    height_mm: float,
     center_z_mm: float,
-    thickness_mm: float = 0.2,
 ) -> pv.PolyData:
     """Electrodo anular frontal robusto, sin booleanos de VTK."""
     if inner_radius_mm <= 0 or inner_radius_mm >= outer_radius_mm:
@@ -97,14 +97,13 @@ def make_annular_electrode(
         c_res=96,
     )
 
-    # Espesor visual/geométrico pequeño para diferenciar el electrodo.
-    # Extrude no requiere booleanos y mantiene una malla simple.
+    # Un pequeño espesor evita depender de booleanos entre cilindros.
+    # La malla final se triangula para una representación estable.
     extruded = ring.extrude(
-        vector=(0, 0, mm(thickness_mm)),
+        vector=(0, 0, mm(height_mm)),
         capping=True,
     )
     return extruded.triangulate()
-
 
 def make_sensor_body(explosion: float) -> pv.PolyData:
     """Carcasa externa transparente del M18."""
