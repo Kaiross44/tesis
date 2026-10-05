@@ -525,3 +525,78 @@ La investigación queda organizada como:
 → **validación experimental**
 
 El banco de pruebas aparece al final como infraestructura de validación, no como objeto principal.
+
+
+---
+
+## H. Patentes y arquitectura interna del CPS M18
+
+> **Uso:** estas patentes se conservan como fuentes de **arquitecturas candidatas y principios de diseño**, no como evidencia de que un sensor M18 comercial específico utilice exactamente dicha arquitectura.
+
+### P1. DE102011121583A1 — Capacitive proximity sensor
+**Balluff GmbH.** Arquitectura cilíndrica con electrodo interno y electrodo exterior; incluye realizaciones con electrodo central y elemento de blindaje/guard alrededor, así como variantes integradas en una carcasa roscada.
+
+- Uso en esta investigación: base principal para las arquitecturas **coaxiales M18** y variantes con shield.
+- Fuente: https://patents.google.com/patent/DE102011121583A1/en
+
+### P2. DE3221223A1 — Capacitive Proximity Initiator
+Arquitectura tubular con electrodo sensor, electrodo de protección/guard y electrodo de blindaje; contempla una carcasa exterior aislante y un shield conectado eléctricamente al circuito.
+
+- Uso: comparar **guard/shield** y separar el concepto de shield de la carcasa metálica.
+- Fuente: https://patents.google.com/patent/DE3221223A1/en
+
+### P3. EP2598848A1 / EP2598848B1 — Capacitive probe / flush mounting
+Describe configuraciones cilíndricas concéntricas para sensores capacitivos, incluyendo realizaciones **flush** con carcasa conectada a tierra y elementos de guard/shield.
+
+- Uso: base para el eje experimental **flush vs non-flush**, housing metálico y shield.
+- Fuentes:
+  - https://patents.google.com/patent/EP2598848A1/en
+  - https://patents.google.com/patent/EP2598848B1/en
+
+### P4. CN222865950U — Capacitive proximity sensor and electronic device
+Incluye electrodo principal, electrodo auxiliar, electrodos de tierra/guard y un electrodo anular exterior. La arquitectura permite comparar capacitancias de medición y referencia y estudiar la influencia del entorno metálico.
+
+- Uso: base para arquitectura **diferencial con referencia + guard/shield**.
+- Fuente: https://patents.google.com/patent/CN222865950U/en
+
+### P5. JP2010223794A — Capacitive proximity sensor, detection method and electrode structure
+Describe múltiples electrodos, electrodos de referencia/blindaje y estrategias de selección/ajuste de la detección mediante comparación de capacitancias.
+
+- Uso: sustento para estudiar **rango de detección, referencia y umbral electrónico**.
+- Fuente: https://patents.google.com/patent/JP2010223794A/en
+
+### P6. US5512836 — Solid-state micro proximity sensor
+Patente histórica de sensores capacitivos de proximidad basados en campo de fuga/fringing field y diferentes patrones de electrodos.
+
+- Uso: **benchmark non-shielded** y antecedentes de geometrías de electrodos.
+- Fuente: https://patents.justia.com/patent/5512836
+
+### P7. US20120013354A1 — Concentric coplanar capacitive sensor
+Arquitectura de electrodo central y anillo concéntrico con separación entre ambos.
+
+- Uso: base de la arquitectura **A — concéntrica non-shielded** y referencia para el estudio de geometría/gap.
+- Fuente: https://patents.google.com/patent/US20120013354A1/en
+
+### P8. US20050264304A1 / US7138809B2 — Electrical capacitance proximity sensor
+Familia de patentes con configuraciones de electrodos auxiliares/guard y comparación entre señales capacitivas para obtener información espacial.
+
+- Uso: sustento adicional para **arquitecturas diferenciales y multielectrodo**.
+- Fuente de familia: https://patents.google.com/patent/HK1083555A1/en
+
+### Matriz preliminar patente → candidato
+
+| Candidato | Arquitectura | Patentes de apoyo |
+|---|---|---|
+| **A** | Concéntrica 2-electrodo, non-shielded | P6, P7 |
+| **B** | Coaxial central + exterior, shield/guard | P1 |
+| **C** | Sensor + guard + shield + carcasa | P2, P3 |
+| **D** | Sensor + referencia auxiliar + guard/shield | P4, P5, P8 |
+
+### Hipótesis de modelado asociadas
+
+1. **Non-shielded:** la carcasa se modelará como parte del entorno o como conductor no conectado a tierra, según el caso de estudio; se evaluará su influencia como condición de contorno.
+2. **Shielded:** se compararán al menos dos configuraciones distintas, porque **shield conectado a GND**, **guard conducido** y **carcasa metálica a GND** no son eléctricamente equivalentes.
+3. **Flush/non-flush:** se considerará como condición experimental separada cuando la geometría lo permita.
+4. **Referencia/diferencial:** cuando haya dos canales capacitivos, se analizará la diferencia o relación entre capacitancias en vez de asumir que el potenciómetro cambia directamente la capacitancia física.
+5. **M18:** la envolvente de trabajo se documentará como Ø18 mm, con longitud nominal aproximada de 69 mm; las dimensiones internas y espesores de carcasa deberán marcarse como **supuestos de modelado** hasta contar con evidencia directa.
+
