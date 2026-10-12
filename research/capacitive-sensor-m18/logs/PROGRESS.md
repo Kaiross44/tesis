@@ -143,3 +143,15 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 - El solver debe completar H1 sin el error de SolveInside; revisar el Message Manager y convergencia.
 - Después, comprobar si se crean `Mag_E`, `E_Vector` y/o las trazas de campo.
 - Solo entonces registrar la primera visualización estática del campo eléctrico. No llamarla onda electromagnética ni extrapolar aún distancia de detección, capacitancia frente a distancia, temperatura, EMI o vibración.
+
+
+## 2026-10-12 — Ejecución confirmada del proyecto v10: el solver requiere SolveInside
+
+### Evidencia del artefacto adjunto por el usuario
+- El archivo y JSON aportados corresponden a `M18_H1_Campo_v10_20261012_161140`, no a una ejecución v11.
+- En v10 se logró crear la región (padding 300 %), asignar los potenciales 1 V / 0 V y crear Setup1; la geometría reporta gap de 4.0 mm.
+- El Message Manager devuelve el error exacto: “At least one material assignment should have solve inside set!” y luego el análisis se detiene. `solved=false`; aún no existen resultados de campo o plots válidos.
+- Causa identificada en la plantilla v10: todos los cuerpos de cobre tenían `SolveInside=False` y la región de vacío también se creó con `SolveInside=False`, por lo que no hay volumen habilitado para resolver el potencial en el dieléctrico.
+- La plantilla v11 suministrada corrige la región de vacío a `SolveInside=True`, manteniendo los cuerpos conductores como `SolveInside=False`. Esa versión sigue pendiente de ejecución; no considerar el error v10 como fallo de v11.
+- Próxima acción: ejecutar la plantilla/PS1 v11 del paquete `M18_ANSYS_H1_Campo_v11_SolveInsideFix.zip` y revisar su nuevo JSON. No volver a ejecutar la versión v10.
+- Criterio de salida: solver complete sin el error SolveInside; validar la convergencia antes de aceptar cualquier gráfica de campo.
