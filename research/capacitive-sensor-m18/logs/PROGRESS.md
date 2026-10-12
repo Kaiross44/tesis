@@ -58,3 +58,26 @@
 
 ## Criterio de reporte
 Hasta que se complete el solver y su validación, describir el trabajo como **geometría importada/configuración preparada**, no como una simulación validada. Mantener separados los hechos de fabricante, las hipótesis H1–H4, las decisiones de modelado y los resultados calculados.
+
+
+## 2026-10-12 — Fase electrostática v7: fallo al crear región; corrección v8 preparada
+
+### Resultado de ejecución v7 (JSON aportado por el usuario)
+- AEDT inició correctamente como Student 2025 R2.4.
+- Los cuatro diseños importaron los sólidos esperados y el reporte confirmó una brecha nominal de 4.0 mm entre cara del sensor y placa objetivo.
+- Todos los diseños fallaron en `editor.CreateRegion(...)`; por tanto no se completaron frontera Balloon, potenciales ni Setup1, y no se resolvió el solver. Estado global: `FAILED_OR_PARTIAL`.
+- La guía oficial Maxwell Scripting Guide v2025 R2 especifica que `Transparency` debe estar entre 0 y 1. La plantilla v7 enviaba `Transparency:=85`, valor fuera del rango documentado. No podemos probar causalidad absoluta sin ejecutar la corrección, pero es la discrepancia más clara identificada.
+- Referencia: Ansys, “3D Modeler Editor Script Commands”, https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/3DModelerEditorScriptCommands.htm
+- Referencia: Ansys, “CreateRegion”, https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/CreateRegion.htm
+
+### Correcciones incluidas en el paquete local v8 (pendiente de probar en el equipo del usuario)
+- Cambiar `Transparency` de 85 a 0.85.
+- Simplificar `Flags` a `Wireframe`.
+- Usar cadena vacía en `ShellElementThickness` porque el dominio no es un shell.
+- Reducir el padding inicial de la región de 300% a 100% para evitar un dominio excesivo en la primera prueba.
+- Recomendación de ejecución: N (no resolver) y comprobar primero que los cuatro diseños reporten Region, Balloon, voltajes y Setup1 creados.
+- Paquete local entregado: `M18_ANSYS_Automatizacion_v8_RegionFix.zip`.
+- Estado actual: corrección generada y sintaxis Python validada localmente; **no es aún una verificación en AEDT**.
+
+### Interpretación científica
+La importación geométrica sí queda verificada por los bounding boxes, recuento de sólidos y separación de 4 mm registrados en el JSON, pero no equivale a una simulación electrostática. Hasta tener región/fronteras/setup y una ejecución con convergencia documentada, no reportar campo, capacitancia ni umbral de detección como resultados.
