@@ -124,3 +124,22 @@ La importación geométrica sí queda verificada por los bounding boxes, recuent
 
 ### Criterio para aceptar la fase
 El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están asignadas, Setup1 existe, el solver termina y al menos una visualización de campo se genera. Verificar además convergencia/malla en Message Manager antes de informar resultados científicos.
+
+
+## 2026-10-12 — H1 v10: solver rechazó SolveInside; v11 preparada
+
+### Evidencia en el JSON v10 aportado por el usuario
+- Se verificó que H1 sí importó tres sólidos, comprobó el gap nominal de 4.0 mm, creó la región exterior, asignó las fronteras de tensión y creó Setup1.
+- El solve falló con el mensaje de AEDT: “At least one material assignment should have solve inside set!”; los campos `solved`, `e_magnitude_plot_created` y `field_line_plot_created` permanecieron en false. No se obtuvo resultado de campo válido.
+- El script v10 asigna `SolveInside=False` a los tres sólidos conductores y también asigna `SolveInside=False` a la región de vacío. Para una región de aire/vacío en la que se quiere calcular el campo, la hipótesis de corrección es mantener los conductores ideales con `SolveInside=False` y cambiar la región a `SolveInside=True`.
+
+### Paquete local v11
+- Paquete preparado: `M18_ANSYS_H1_Campo_v11_SolveInsideFix.zip`.
+- El cambio de código se limita a la propiedad `SolveInside` de la región vacuum: pasa de false a true. Los sólidos conductores se mantienen con `SolveInside=False`.
+- Se añadió un campo `region_solve_inside` al informe JSON. Se conserva el método H1, objetivo conductor a 4 mm, sense a 1 V normalizado y referencias/objetivo a 0 V.
+- La sintaxis de la plantilla fue comprobada en Python fuera de AEDT; **el paquete v11 no ha sido aún ejecutado en el Ansys del usuario**, por lo que no debe describirse como solución exitosa hasta recibir el nuevo JSON y revisar convergencia.
+
+### Criterio de aceptación
+- El solver debe completar H1 sin el error de SolveInside; revisar el Message Manager y convergencia.
+- Después, comprobar si se crean `Mag_E`, `E_Vector` y/o las trazas de campo.
+- Solo entonces registrar la primera visualización estática del campo eléctrico. No llamarla onda electromagnética ni extrapolar aún distancia de detección, capacitancia frente a distancia, temperatura, EMI o vibración.
