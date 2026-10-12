@@ -81,3 +81,25 @@ Hasta que se complete el solver y su validación, describir el trabajo como **ge
 
 ### Interpretación científica
 La importación geométrica sí queda verificada por los bounding boxes, recuento de sólidos y separación de 4 mm registrados en el JSON, pero no equivale a una simulación electrostática. Hasta tener región/fronteras/setup y una ejecución con convergencia documentada, no reportar campo, capacitancia ni umbral de detección como resultados.
+
+
+## 2026-10-12 — Fase visual H1: v8 no completó región; v9 preparada
+
+### Revisión del script y reporte v8 aportado
+- El script ejecutado por el usuario reporta FAILED_OR_PARTIAL en las cuatro arquitecturas; el error ocurre en editor.CreateRegion(...). No hay solver completado ni field plot de v8, por lo que no existe aún resultado de campo que reportar.
+- Se inspeccionó la referencia oficial: el ejemplo de CreateRegion en Maxwell Scripting Guide v252 usa Flags = "Wireframe#", Transparency = 0 y ShellElementThickness = "nan ". El script v8 difería en estos atributos (usaba Wireframe, 0.85 y cadena vacía). Se ha preparado un v9 que replica el ejemplo del manual de forma más fiel; aún requiere ejecutar en el AEDT del usuario.
+- Referencia oficial CreateRegion: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/CreateRegion.htm
+- Referencia oficial CreateFieldPlot: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/CreateFieldPlot.htm
+- Referencia oficial field-line traces: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Content/Maxwell/PlottingFieldLineTraces.htm
+
+### Paquete local v9 — objetivo acotado a H1
+- Se ha generado M18_ANSYS_H1_Campo_v9.zip; estado: preparado, no probado todavía en AEDT.
+- El flujo actúa solo sobre H1: importa electrodo central, anillo auxiliar y target; asigna material conductor idealizado, región exterior, Balloon, 1 V normalizado a sense y 0 V al auxiliar/target; inserta setup, resuelve H1 y después intenta crear tres overlays independientes: magnitud del campo Mag_E, vector E_Vector y líneas de campo QuantityName_FieldLineTrace.
+- Los errores de creación de cada overlay se registran separados del estado del solver para distinguir una solución electrostática de una visualización que falla.
+- Se conserva la salvedad física: Maxwell Electrostatic genera un campo estático (líneas, magnitud/vector), no ondas electromagnéticas propagantes. Para ondas/campos variables en el tiempo se requeriría una formulación y solver diferentes.
+- No se generalizará el automatizador a H2–H4 hasta comprobar región, solución y visualización de H1.
+
+### Próximo criterio de aceptación
+- Reporte JSON de v9 muestra region_created=true, balloon_created=true, voltage_boundaries_created=true, setup_created=true, solved=true y al menos uno de e_magnitude_plot_created, e_vector_plot_created o field_line_plot_created.
+- Tras ello, inspeccionar el mensaje de convergencia de AEDT y confirmar visualmente líneas/colores y dirección del campo entre el electrodo a 1 V y los conductores de referencia a 0 V.
+- No reportar una curva de capacitancia, umbral de detección ni comportamiento con temperatura/EMI/vibración hasta implementar y validar las fases correspondientes.
