@@ -103,3 +103,24 @@ La importación geométrica sí queda verificada por los bounding boxes, recuent
 - Reporte JSON de v9 muestra region_created=true, balloon_created=true, voltage_boundaries_created=true, setup_created=true, solved=true y al menos uno de e_magnitude_plot_created, e_vector_plot_created o field_line_plot_created.
 - Tras ello, inspeccionar el mensaje de convergencia de AEDT y confirmar visualmente líneas/colores y dirección del campo entre el electrodo a 1 V y los conductores de referencia a 0 V.
 - No reportar una curva de capacitancia, umbral de detección ni comportamiento con temperatura/EMI/vibración hasta implementar y validar las fases correspondientes.
+
+
+## 2026-10-12 — H1 v9: región creada; fallo en AssignBalloon; v10 preparada
+
+### Evidencia de ejecución v9 enviada por el usuario
+- La geometría H1 se importó: dos electrodos conceptuales y objetivo metálico; el informe indica unidad mm y separación sensor-objetivo de 4.0 mm.
+- La región se creó (`region_created=true`), pero `BoundarySetup.AssignBalloon` falló porque el objeto COM no expone ese método (`ADispatchWrapper has no attribute AssignBalloon`). No se crearon las fronteras de voltaje ni el Setup; el solver no se ejecutó (`solved=false`).
+- Resultado documentado: `H1_FAILED_OR_PARTIAL`; no hay campo eléctrico numérico ni plots validables de v9.
+
+### Revisión de la API/documentación
+- El scripting de `CreateFieldPlot` en Maxwell 2025 R2 documenta expresamente plots de `Mag_E`, `E_Vector` y `QuantityName_FieldLineTrace` en diseños electrostáticos 3D: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/CreateFieldPlot.htm
+- La documentación de condiciones de frontera electrostáticas describe las condiciones predeterminadas para 3D: fronteras naturales en interfaces y Neumann en las caras exteriores de la región; dejar una cara por defecto no requiere asignación adicional. https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v261/en/Subsystems/Maxwell/Content/Maxwell/ElectrostaticBoundaries.htm
+- En consecuencia, el flujo v10 elimina la llamada a `AssignBalloon` en Maxwell 3D Electrostatic, registra la condición Neumann exterior predeterminada y aumenta el padding de la región a 300 %. Esto es una aproximación inicial: la influencia de la frontera se deberá verificar con una sensibilidad de tamaño de región (por ejemplo 200 %, 300 %, 400 %) y no se debe describir como una frontera infinita exacta.
+
+### Paquete local v10
+- `M18_ANSYS_H1_Campo_v10_RegionBoundaryFix.zip`: generado y se comprobó sintaxis Python tras sustituir las variables de plantilla.
+- El script solo intenta resolver H1 y generar magnitud de campo, vector y líneas; no relanza H2–H4.
+- Estado: preparado, no probado en el equipo del usuario. Se requiere el nuevo JSON para validar si pasó asignación de voltaje, setup, solver y visualizaciones.
+
+### Criterio para aceptar la fase
+El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están asignadas, Setup1 existe, el solver termina y al menos una visualización de campo se genera. Verificar además convergencia/malla en Message Manager antes de informar resultados científicos.
