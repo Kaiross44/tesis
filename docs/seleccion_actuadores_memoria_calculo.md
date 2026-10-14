@@ -131,3 +131,31 @@ El dato de diseño de entrada es 220 V AC, 60 Hz. La hoja EL-04 representa una t
 La memoria final deberá mostrar el DCL etiquetado, la conversión de frecuencia a rpm, el cálculo de fuerza por desequilibrio, la dinámica masa–resorte–amortiguador, la selección del motor y accionamiento según la alimentación de 220 V, la interfaz PLC, y una tabla de verificación que demuestre el cumplimiento de 10, 50, 100, 200 y 300 Hz en condiciones especificadas. El análisis modal puede servir para validar resonancias, pero no se utiliza para reducir el requisito de frecuencia.
 
 **Límite actual:** se adopta AC + VFD como arquitectura candidata por preferencia de coste, pero no se afirma todavía que sea la opción final más económica ni que cumpla 10–300 Hz. Faltan número de fases de la red, ficha del motor/VFD, velocidad mecánica segura, masa móvil, masa excéntrica/excentricidad y perfil de aceleración de diseño.
+
+
+## 8. Planos eléctricos preliminares — revisión A (2026-10-14)
+
+Se elaboraron dos hojas A3 separando la distribución de potencia del cableado de campo:
+
+- **EL-04 — Diagrama unifilar del gabinete:** entrada nominal de diseño 220 V AC, 60 Hz; seccionamiento y protección general; ramal de VFD/motor; ramal H-101 de 220 V AC con SSR y termostato independiente; fuente preliminar 24 V DC/15 A; distribución de 24 V de control y de actuadores, con corte de seguridad.
+- **EL-05 — Interconexión gabinete–banco:** identifica gabinete CE-01 y banco BE-01 como equipos físicamente independientes, cables C01–C09, terminales de campo y rutas separadas para potencia, 24 V DC, RTD, aceleración, sensores PNP y cadena de seguridad.
+
+Los planos tienen estado **PRELIMINAR PARA REVISIÓN**, no están liberados para fabricar/cablear. Los valores nominales de protecciones y secciones de conductor no se rellenaron porque aún no se dispone de los datos definitivos de placa del motor/VFD ni del cálculo de cortocircuito y condiciones de instalación.
+
+### Decisiones de diseño reflejadas
+
+- Arquitectura candidata de vibración: motor AC con masa excéntrica, VFD en el gabinete y mando desde PLC.
+- La hoja EL-04 presupone entrada L–N–PE monofásica de 220 V, 60 Hz como aparece en el esquema de toma de la hoja electrónica existente; verificar físicamente la toma antes de seleccionar el VFD.
+- Para un ciclo mecánico por revolución, 300 Hz implican 18 000 rpm. La velocidad máxima autorizada del conjunto motor/rotor y la frecuencia de salida del VFD deben validarse con las fichas del fabricante antes de considerar viable la solución.
+- La CPU S7-1200 1214C DC/DC/DC referida en los planos tiene dos entradas analógicas y ninguna salida analógica integrada. Si se usa consigna 0–10 V al VFD, se necesita un módulo AQ; como alternativa, puede estudiarse una interfaz de comunicación compatible con el PLC y el modelo final de VFD.
+- El canal de vibración se especifica como medición de aceleración RMS acondicionada con ancho de banda adecuado. Una lectura de tendencia a 10 Hz no sirve por sí sola para muestrear directamente una onda vibratoria de 300 Hz.
+- El paro de emergencia debe implementarse mediante una cadena cableada y elementos compatibles con la evaluación de riesgos; el software del PLC no se considera el único medio de parada. La conexión a STO depende de que el VFD seleccionado disponga de esa función y de las instrucciones del fabricante.
+- La fuente de 24 V DC/15 A permanece como candidata. El presupuesto anterior incluía el amplificador del woofer ya descartado; debe recalcularse con la nueva instrumentación, la cama caliente y las cargas finales.
+
+### Entregables creados
+
+- EL-04_Unifilar_gabinete_RevA.svg
+- EL-05_Interconexion_gabinete_banco_RevA.svg
+- Planos_unifilar_interconexion_RevA.pdf
+
+Las fuentes SVG se conservan para editar las figuras vectoriales. Se debe actualizar la revisión del plano después de cerrar: modelo del motor, motor/VFD compatibles con el requisito de 10–300 Hz, módulo de salida PLC o comunicación seleccionada, sensor/acondicionador de aceleración, carga real de 24 V, dispositivos de protección, conductores y conectores de campo.
