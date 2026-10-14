@@ -159,3 +159,59 @@ Los planos tienen estado **PRELIMINAR PARA REVISIÓN**, no están liberados para
 - Planos_unifilar_interconexion_RevA.pdf
 
 Las fuentes SVG se conservan para editar las figuras vectoriales. Se debe actualizar la revisión del plano después de cerrar: modelo del motor, motor/VFD compatibles con el requisito de 10–300 Hz, módulo de salida PLC o comunicación seleccionada, sensor/acondicionador de aceleración, carga real de 24 V, dispositivos de protección, conductores y conectores de campo.
+
+
+## 9. Cálculos de diseño — revisión 0.01 (2026-10-14)
+
+La imagen compartida del esquema de conexión de la CPU S7-1200 se trata como **referencia gráfica preliminar v0.01** para el cableado de bornes; no reemplaza el diagrama unifilar de potencia ni el plano de interconexión gabinete–banco.
+
+### Base actual
+- Alimentación de diseño: 220 V AC, 60 Hz.
+- Arquitectura candidata: motor AC con masa excéntrica y VFD ubicado en el gabinete; PLC/HMI envían consigna y órdenes por una interfaz compatible.
+- Banda de vibración mecánica obligatoria: 10–300 Hz.
+- La aceleración 0,5–5 g se mantiene solo como antecedente histórico, porque la versión anterior del informe la indicaba para 10–200 Hz y no definía si era pico o RMS. Los cálculos cinemáticos de esta revisión suponen valor pico únicamente como escenario de referencia.
+- Hipótesis cinemática: una oscilación fundamental por revolución.
+
+### Tabla de relación cinemática
+`n = 60 f_v`, `ω = 2π f_v`, `x_pk = a_pk/ω²`.
+
+| f_v (Hz) | n equivalente (rpm) | ω (rad/s) | x_pk a 0,5 g pico (mm) | x_pk a 5 g pico (mm) |
+|---:|---:|---:|---:|---:|
+| 10 | 600 | 62.83 | 1.2420 | 12.4203 |
+| 50 | 3 000 | 314.16 | 0.0497 | 0.4968 |
+| 100 | 6 000 | 628.32 | 0.0124 | 0.1242 |
+| 200 | 12 000 | 1 256.64 | 0.0031 | 0.0311 |
+| 300 | 18 000 | 1 884.96 | 0.0014 | 0.0138 |
+
+El límite de 300 Hz corresponde a 18 000 rpm con excitación 1× por revolución. Debe validarse por ficha del fabricante para motor, rotor/excentricidad, rodamientos, equilibrado y operación a frecuencia elevada; no se asume que un VFD que permita configurar 300 Hz garantice la seguridad mecánica.
+
+### DCL y modelo dinámico
+Para un modelo equivalente de un grado de libertad, midiendo x desde el equilibrio estático:
+
+`M x¨ + c x˙ + k x = F_{e,pk} sin(ωt)`
+
+`F_{e,pk} = m_e e ω²`
+
+`X = F_{e,pk} / sqrt[(k − Mω²)² + (cω)²]`; `a_pk = ω² X`.
+
+Donde M es la masa móvil total, m_e la masa excéntrica, e la excentricidad, k la rigidez y c el amortiguamiento equivalente. Estos cuatro parámetros todavía no están definidos. No se debe proponer una masa excéntrica ni potencia de motor a partir de una aceleración sin resolver el DCL y validar la respuesta de la plataforma.
+
+Para un momento de desequilibrio fijo U = m_e e, la fuerza ideal de desequilibrio aumenta con ω², por lo que se multiplica por (300/10)² = 900 entre los extremos de la banda. Esto no significa que la aceleración de la plataforma se multiplique exactamente por 900, porque depende de M, k, c, resonancias y montaje; sí evidencia que debe verificarse el rango de aceleración punto a punto y considerar si el desequilibrio debe ser ajustable.
+
+### Selección eléctrica y control
+La corriente de entrada no se calcula todavía porque falta potencia nominal del motor, rendimiento, factor de potencia y datos del VFD. Como estimación:
+
+`P_in ≈ P_2/(η_motor η_VFD)`; `I_in ≈ P_2/(V_in η_motor η_VFD PF_in)`
+
+Para el diseño final, priorizar la corriente de entrada indicada por el fabricante del VFD y su tabla de coordinación de protecciones; la ecuación es una comprobación energética, no una sustitución de la ficha técnica.
+
+La CPU 1214C DC/DC/DC especificada tiene 14 DI, 10 DO de 24 VDC y 2 AI de 0–10 V, sin AO integrada. Para la consigna analógica 0–10 V se necesitaría un módulo AQ compatible; alternativamente, se puede elegir una comunicación industrial soportada tanto por el PLC como por el VFD.
+
+### Entregables de cálculo
+- `Memoria_calculo_motor_AC_VFD_Rev001.docx`: base de diseño, DCL, relación de frecuencia/velocidad, cálculos de desplazamiento, modelo dinámico y lista de decisiones pendientes.
+- `Calculos_motor_AC_VFD_banco_Rev001.xlsx`: hojas `Base_diseno`, `Rango_10_300`, `DCL_dinamica` y `Calculo_electrico`. La hoja DCL queda paramétrica hasta ingresar M, m_e, e, k y c; la hoja eléctrica queda paramétrica hasta ingresar datos nominales del motor y VFD.
+
+### Fuentes técnicas
+- Siemens, ficha CPU 1214C DC/DC/DC: https://support.industry.siemens.com/teddatasheet/?caller=SIOS&format=pdf&language=en&mlfbs=6ES7214-1AG40-0XB0
+- WEG, manual de instalación/operación/mantenimiento de motores: consultar velocidad máxima mecánica y frecuencia máxima de placa: https://static.weg.net/medias/downloadcenter/h0c/hfd/WEG-WMO-iom-installation-operation-and-maintenance-manual-of-electric-motors-50033244-manual-pt-en-es-web.pdf
+- ISO/TR 230-8:2010, sección de vibraciones: fuerza de desequilibrio proporcional al momento de desequilibrio y a ω².
