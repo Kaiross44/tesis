@@ -313,3 +313,58 @@ Este filtro requiere luz L, sección b × h × t y fuerza procedente del DCL. No
 - Armacell, producto de fibra mineral: https://www.armacell.com/en-NL/product/technical-specs/mineral-fibre
 - MatWeb, ASTM A36 Steel Plate: https://www.matweb.com/search/DataSheet.aspx?MatGUID=afc003f4fb40465fa3df05129f0e88e6
 - ANSYS, propiedades térmicas y expansión de materiales: https://ansyshelp.ansys.com/public/Views/Secured/corp/v252/en/motion_theory/motion_theory_materials.html
+
+
+## 13. Selección preliminar del PLC — revisión 0.03 (2026-10-14)
+
+### Recomendación para una compra nueva
+
+**CPU candidata:** Siemens SIMATIC S7-1200 G2 CPU 1214C DC/DC/DC, **6ES7214-1AH50-0XB0**.  
+**Módulo analógico recomendado:** SIMATIC S7-1200 G2 SM 1233, 4 AI/4 AQ, **6ES7233-4HF50-0XB0**.
+
+La CPU G2 ofrece 14 DI de 24 V DC y 10 DQ de 24 V DC; no integra entradas/salidas analógicas. El módulo SM 1233 añade cuatro entradas analógicas de 14 bit y cuatro salidas analógicas de 14 bit; admite entradas ±10 V, ±5 V, ±2.5 V, 0–20 mA o 4–20 mA y salidas ±10 V, 0–20 mA o 4–20 mA. Esta combinación cubre los tres canales analógicos de entrada que aparecen en la arquitectura actual y aporta hasta cuatro salidas analógicas; solo una es imprescindible si el VFD se controla con referencia analógica, dejando el resto para expansión.
+
+### Asignación I/O propuesta
+
+| Canal | Uso propuesto | Tipo/señal |
+|---|---|---|
+| AI0 | Transmisor PT100 del aire de cámara | 0–10 V, según transmisor elegido |
+| AI1 | Transmisor PT100 de superficie | 0–10 V, según transmisor elegido |
+| AI2 | Aceleración de la plataforma después del acondicionador | Señal analógica escalada; confirmar ancho de banda de adquisición |
+| AI3 | Reserva para salida analógica del DUT u otra variable | Reservado |
+| AQ0 | Referencia de velocidad del VFD | 0–10 V o 4–20 mA, según VFD y parametrización |
+| AQ1–AQ3 | Reserva futura | Sin asignar hasta una necesidad justificada |
+| DI | B1/B2, marcha, parada, puerta, diagnóstico del VFD y estados de seguridad | 24 V DC, contactos/sensores compatibles |
+| DQ | Habilitación/marcha VFD, control SSR H-101, control MOSFET H-102, ventilador, piloto, reset/alarma según diseño | 24 V DC; validar las salidas y método de modulación con los actuadores elegidos |
+
+La cadena de parada de emergencia no se debe resolver solo por software ordinario: el diseño definitivo debe usar dispositivos y cableado acordes a la evaluación de riesgos y al VFD elegido (por ejemplo, entrada STO si el modelo la incorpora y la función ha sido diseñada/validada).
+
+### Por qué no conservar la CPU 1214C original sin cambios
+
+La CPU 1214C DC/DC/DC de primera generación **sí dispone de 10 salidas digitales transistor de 24 V**, pero no incluye salidas analógicas integradas. Por ello, con la consigna analógica para el VFD, debe añadirse una salida analógica compatible o utilizar una interfaz digital soportada por ambos equipos. El problema no es el sufijo DC/DC/DC por sí mismo, sino el modelo de CPU y su dotación analógica.
+
+### Alternativa de mínimo cambio si ya se posee el PLC de primera generación
+
+Conservar CPU 1214C DC/DC/DC de primera generación y añadir **SM 1232 AQ 2x14 bit, 6ES7232-4HB32-0XB0**, que proporciona dos canales analógicos de salida seleccionables para ±10 V o 0–20/4–20 mA. El proveedor local consultado mostraba S/ 1,850.69 con IGV para este módulo; verificar precio, disponibilidad y compatibilidad con la referencia exacta del PLC antes de presupuestar. Esta alternativa evita cambiar la CPU, pero suma un módulo adicional y hereda la situación de ciclo de vida de la plataforma anterior.
+
+### Alternativa compacta de generación anterior
+
+La **CPU 1215C DC/DC/DC 6ES7215-1AG40-0XB0** de primera generación ofrece 14 DI, 10 DQ, 2 AI 0–10 V y 2 AO 0–20 mA integradas. Permite manejar un VFD con referencia de corriente compatible, aunque una consigna de 0–10 V necesitaría otra interfaz o conversión. Un distribuidor peruano mostraba un precio publicado de S/ 3,194.50 con IGV; es un precio de referencia de una página de proveedor y no una cotización contractual.
+
+No es la primera recomendación para una compra nueva porque Siemens ha anunciado el inicio del phase-out de la familia S7-1200 de primera generación desde el 1 de noviembre de 2026. Además, se debe confirmar la versión de firmware/STEP 7 necesaria antes de comprometer un modelo.
+
+### Condición de software y compra
+
+La generación S7-1200 G2 se configura con **TIA Portal / STEP 7 V20 o posterior**. Antes de cerrar esta elección se debe comprobar si el laboratorio dispone de V20+ y de licencia adecuada. Si el proyecto está limitado obligatoriamente a TIA Portal V19, la CPU G2 no se debe comprar hasta resolver esa incompatibilidad de ingeniería.
+
+No se encontró una cotización pública peruana verificable para la combinación G2 CPU + SM 1233 durante esta revisión; solicitar al menos una oferta local del conjunto antes de cerrar el presupuesto.
+
+### Fuentes de selección
+
+- Siemens Industry Mall — CPU 1214C G2 (6ES7214-1AH50-0XB0): https://mall.industry.siemens.com/mall/en/hr/Catalog/Product/6ES7214-1AH50-0XB0
+- Siemens Industry Mall — SM 1233, 4 AI/4 AQ G2 (6ES7233-4HF50-0XB0): https://mall.industry.siemens.com/mall/PT/PT/Catalog/Product/?mlfb=6ES7233-4HF50-0XB0
+- Siemens, manual S7-1200 G2 y requisito de TIA Portal V20: https://support.industry.siemens.com/cs/attachments/109972011/S71200_G2_system_manual_en-US.pdf
+- Siemens Industry Mall — CPU 1215C de primera generación (6ES7215-1AG40-0XB0) y dotación analógica/ciclo de vida: https://mall.industry.siemens.com/mall/en/EN/Catalog/Product/6ES7215-1AG40-0XB0
+- Siemens, nota de transición de S7-1200 de primera generación a G2: https://sieportal.siemens.com/en-ww/search?EntryTypes=&SearchTerm=6ES7214-1AG40-0XB0&SortingOption=DateDesc&scope=knowledgebase
+- Proveedor local, SM 1232 AQ 2 salidas (precio indicativo): https://www.grupocoinp.com/shop/product/6es7232-4hb32-0xb0-modulo-salida-analogica-sm-1232-2-aq-14-bit-13-bit-659
+- Proveedor local, CPU 1215C (precio indicativo): https://telectricperu.com/product-category/siemens/page/15/
