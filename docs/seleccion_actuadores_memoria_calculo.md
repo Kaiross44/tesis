@@ -93,10 +93,10 @@ x_pk = a_pk / (2π f_v)²
 | Frecuencia | Desplazamiento pico a 0,5 g pico | Desplazamiento pico a 5 g pico |
 |---:|---:|---:|
 | 10 Hz | 1,24 mm | 12,4 mm |
-| 50 Hz | 0,099 mm | 0,994 mm |
-| 100 Hz | 0,0248 mm | 0,248 mm |
-| 200 Hz | 0,00621 mm | 0,0621 mm |
-| 300 Hz | 0,00276 mm | 0,0276 mm |
+| 50 Hz | 0,0497 mm | 0,497 mm |
+| 100 Hz | 0,0124 mm | 0,124 mm |
+| 200 Hz | 0,00311 mm | 0,0311 mm |
+| 300 Hz | 0,00138 mm | 0,0138 mm |
 
 Son implicaciones cinemáticas del requisito histórico, no resultados de un motor seleccionado. Si los valores solicitados fueran RMS sinusoidal, (a_{pk}=\sqrt{2}\,a_{rms}). Esta tabla muestra por qué deben verificarse tanto el recorrido disponible en el extremo bajo como las fuerzas, el equilibrado y los límites mecánicos en el extremo alto.
 
