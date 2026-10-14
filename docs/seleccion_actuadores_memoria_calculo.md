@@ -1,136 +1,131 @@
-# Memoria preliminar de cálculo — selección de actuadores del banco
+# Revisión de arquitectura y base de cálculo — actuador vibratorio
 
 **Fecha:** 2026-10-14  
-**Estado:** Revisión 0 — preliminar, no liberada para compra ni como validación de desempeño.  
-**Base:** lista de materiales, planos PID y control (12/10/2026), manuscrito español y registro del subproyecto CPS M18.
+**Estado:** Base de diseño revisada; selección de motor y controlador aún por cerrar.  
+**No usar como selección final:** el primer borrador generado con woofer quedó descartado porque no representa la arquitectura acordada.
 
-## 1. Alcance
+## 1. Fuentes y decisiones
 
-Dimensionar de manera trazable los subsistemas térmico y vibratorio. Se separan los valores documentados de las hipótesis ilustrativas y de los datos pendientes. El objetivo es definir una selección verificable, no declarar el cumplimiento sin pruebas.
+### Antecedente encontrado
+El informe anterior del proyecto propone un **motor con masa excéntrica**, una medición de vibración mediante MPU-6050 y un PLC Siemens S7-1200 como controlador central. Ese documento indica una banda histórica de 10–200 Hz y 0,5–5 g. La documentación histórica además mezcla la expresión “motor DC” con “variador de frecuencia”; esa combinación debe aclararse antes de seleccionar hardware porque el accionamiento depende de si el motor es DC o AC.
 
-## 2. Datos documentados
+### Requisito vigente de diseño
+- Frecuencia mecánica de vibración: **10–300 Hz obligatorios**.
+- Alimentación disponible del sistema: **220 V AC**.
+- El motor y su etapa de potencia/control deben integrarse al PLC (consigna, marcha/permiso, parada, alarma/estado y realimentación).
+- La aceleración de ensayo se debe derivar de los requisitos de caracterización y de la capacidad demostrada del conjunto; el antiguo rango 0,5–5 g se conserva como antecedente de diseño, no como decisión final automática.
+- La propuesta económica de la lista de materiales de octubre que utiliza woofer/TPA3116/ESP32 queda descartada para la selección actual.
 
-| Tag / equipo | Datos en los documentos | Observación de selección |
-|---|---|---|
-| H-101, calefactor de aire | PTC, 220 VAC, 200 W; aire de cámara 25–80 °C | Se puede estimar la corriente nominal. La suficiencia térmica requiere volumen, aislamiento, masa térmica, pérdidas y tiempo objetivo. |
-| FN-101, ventilador | 80 mm, 24 VDC | No se indica curva caudal–presión ni temperatura admisible del motor/rodamiento; solicitar ficha técnica. |
-| H-102, superficie caliente | Cama MK2a, 214 × 214 mm, 24 VDC, MOSFET | La opción ideal de la lista señala una placa de silicona de 150 W, pero se debe confirmar el SKU/potencia de la opción elegida. No trasladar automáticamente ese dato. |
-| Protección térmica | Dos KSD301 NC de 85 °C; alarma alta de aire a 82 °C | Verificar ubicación y que los termostatos interrumpan físicamente la potencia del calefactor correspondiente. |
-| X-201, excitador | Woofer de auto 6,5 in, 4 Ω | Propuesta económica de prototipo. No consta Xmax, fuerza/BL, potencia RMS real ni curva de respuesta. |
-| SY-201, amplificador | Módulo TPA3116 anunciado como 2 × 50 W, 12–24 V | Confirmar ficha del módulo, potencia continua a 4 Ω, fuente y disipación. La cifra publicitaria no certifica fuerza vibratoria. |
-| P-201, placa | Aluminio ~220 × 160 × 3 mm y cuatro resortes | Se estima solo la masa de la placa. La masa móvil completa y la rigidez de los resortes quedan pendientes. |
-| Ensayo vibratorio | Barrido propuesto de 10–300 Hz; aceleración a_rms registrada con ADXL345 + ESP32 | El plano actual describe mando y monitoreo; no da una aceleración objetivo ni demuestra que se alcance el barrido completo. |
+## 2. Relación entre frecuencia mecánica y velocidad del motor
 
-## 3. Cálculos térmicos preliminares
-
-### 3.1 H-101 — corriente y resistencia equivalentes
-
-Datos de lista: P = 200 W, V = 220 V AC.
+Para un actuador rotativo con una excitación por revolución:
 
 ```
-I ≈ P/V = 200/220 = 0.91 A
-R_eq ≈ V²/P = 220²/200 = 242 Ω
+f_v = n/60
+n = 60 f_v
 ```
 
-Estos son valores de primer orden. Un calentador PTC no debe tratarse como una resistencia constante en todo su rango; revisar la ficha y medir la corriente real. No utilizar estos resultados por sí solos para seleccionar conductores, protección o relé.
-
-El balance térmico preliminar es:
-
-```
-Q̇_requerida ≈ [(m_aire c_p,aire) + Σ(m_i c_i)] · ΔT/t + Q̇_pérdidas
-```
-
-No se puede demostrar que 200 W sea suficiente hasta definir volumen/altura de CT-100, materiales y espesor de aislamiento, masas internas, fugas/renovación de aire y tiempo máximo para alcanzar consigna. El plano propone estabilidad de ±1 °C, que debe verificarse experimentalmente.
-
-### 3.2 H-102 — área y corriente condicional
-
-```
-A = 0.214 × 0.214 = 0.0458 m²
-```
-
-Si —y solo si— se confirma una cama de 150 W a 24 V:
-
-```
-I = 150/24 = 6.25 A
-R_eq ≈ 24²/150 = 3.84 Ω
-```
-
-La potencia debe confirmarse antes de cerrar el MOSFET, fusible, sección de cable y fuente. Documentar la referencia exacta y potencia nominal de la opción económica elegida.
-
-## 4. Cálculos preliminares de vibración
-
-### 4.1 Masa de placa sin accesorios
-
-Para placa idealizada de aluminio L = 0.220 m, W = 0.160 m, t = 0.003 m, con densidad típica de cálculo ρ = 2700 kg/m³:
-
-```
-V = L·W·t = 1.056 × 10⁻⁴ m³
-m_placa = ρ·V ≈ 0.285 kg
-```
-
-La masa de 0.285 kg no incluye sensor, adaptador, objetivo, tornillos ni la parte móvil efectiva del transductor. Se debe pesar la configuración montada.
-
-### 4.2 Desplazamiento sinusoidal asociado a aceleración
-
-Para movimiento sinusoidal:
-
-```
-a_pk = (2πf)² · x_pk
-x_pk = a_pk / (2πf)²
-```
-
-Si se ilustra a_pk = 1 g = 9.81 m/s², el desplazamiento pico cinemático requerido es:
-
-| Frecuencia | Desplazamiento pico para 1 g pico |
+| Frecuencia mecánica | Velocidad de giro equivalente |
 |---:|---:|
-| 10 Hz | 2.49 mm |
-| 50 Hz | 0.099 mm |
-| 100 Hz | 0.0248 mm |
-| 300 Hz | 0.00276 mm |
+| 10 Hz | 600 rpm |
+| 50 Hz | 3000 rpm |
+| 100 Hz | 6000 rpm |
+| 200 Hz | 12000 rpm |
+| 300 Hz | 18000 rpm |
 
-Esta tabla es una conversión cinemática ilustrativa, no un requisito aprobado ni una predicción del woofer. Para una señal sinusoidal, a_pk = √2 · a_rms. A 10 Hz el recorrido podría ser una restricción importante; a frecuencias altas deben revisarse respuesta dinámica, resonancias, instrumentación y montaje.
+Por ello, 300 Hz no significa simplemente configurar 300 Hz en un PLC o en un variador. Si la plataforma recibe un ciclo vibratorio por revolución, el motor debe alcanzar 18 000 rpm mecánicas y estar certificado por el fabricante para esa velocidad, rodamientos y carga excéntrica. Un motor industrial estándar no se debe llevar a esa velocidad por asumir que el variador lo permite. La relación se documenta en manuales de motores vibratorios industriales y la fuerza depende del desequilibrio y del cuadrado de la velocidad.
 
-### 4.3 Fuerza inercial y frecuencia natural
+## 3. Diagrama de cuerpo libre (DCL) de la plataforma
+
+Modelo unidimensional simplificado en el eje de ensayo. La coordenada (x(t)) se mide respecto de la posición de equilibrio estático, por lo que el peso queda compensado por la precarga/reacción estática:
+
+- (M): masa móvil total (placa + sensor + adaptador + fijaciones + parte móvil asociada).
+- (F_e(t)): componente de fuerza de excitación transmitida por la masa excéntrica.
+- (k): rigidez equivalente de la suspensión/guías.
+- (c): amortiguamiento equivalente.
+- (x,dot{x},ddot{x}): desplazamiento, velocidad y aceleración de la plataforma.
 
 ```
-F_inercial,pk = m_móvil · a_pk
+             F_e(t) = U·ω²·sin(ωt)
+                         ↑
+                  ┌───────────┐
+                  │ plataforma│    x(t)
+                  │     M     │
+                  └───────────┘
+                    ↓  k·x       reacción elástica
+                    ↓  c·ẋ      reacción amortiguadora
+              (peso Mg equilibrado en x = 0 estático)
 ```
 
-Ejemplo estrictamente ilustrativo: para masa móvil total de 0.40 kg y 1 g pico, F_inercial,pk = 3.92 N. El cálculo no contempla reacción de resortes, amortiguamiento, pérdidas, resonancia ni límites del transductor; tampoco demuestra que el woofer proporcione esa fuerza a todas las frecuencias.
-
-Para n resortes iguales en paralelo:
+La masa excéntrica produce una fuerza centrífuga de amplitud:
 
 ```
-k_eq = n·k_s
-f_n = (1/2π) · √(k_eq/m_móvil)
+U = m_e·e
+ω = 2π f_v
+F_e,pk = m_e·e·ω² = U·(2π f_v)²
 ```
 
-Con cuatro resortes, k_eq = 4 k_s. Obtener la rigidez real de ficha o prueba carga–deflexión; contrastar la frecuencia natural calculada con una prueba modal/barrido de baja amplitud.
+donde (m_e) es la masa excéntrica y (e) es su excentricidad.
 
-## 5. Criterios para cerrar la selección
+El DCL lleva a la ecuación dinámica linealizada:
 
-| Prioridad | Parámetro pendiente | Evidencia para cerrar |
-|---|---|---|
-| Crítica | Perfil objetivo de a_rms frente a frecuencia y tolerancia | Definir puntos/intervalo, amplitud, permanencia y tolerancia de aceptación. |
-| Crítica | Masa móvil total | Pesar la placa con todos los componentes montados y estimar masa efectiva móvil del excitador. |
-| Crítica | Xmax y rango útil del woofer | Ficha técnica del transductor; comparar recorrido requerido con recorrido lineal permitido. |
-| Crítica | Potencia RMS y respuesta del amplificador a 4 Ω | Ficha del módulo, fuente, disipación y prueba de temperatura/saturación. |
-| Alta | Rigidez/amortiguamiento de resortes | Ficha técnica o ensayo de carga–deflexión; verificar frecuencia natural. |
-| Alta | Potencia real de H-102 | Referencia exacta de la cama y corriente nominal. |
-| Alta | Volumen/aislamiento y pérdidas de CT-100 | Dimensiones internas, espesores/materiales y prueba escalón térmico. |
-| Alta | Caudal útil de FN-101 | Curva caudal–presión y mapa de uniformidad térmica. |
-| Crítica | Límites térmicos de sensor, adaptador y cables | Fichas de componentes y máxima temperatura admisible. |
-| Alta | Rango/ancho de banda de ADXL345 | Configurar tasa de muestreo y verificar con referencia calibrada. |
+```
+M·ẍ + c·ẋ + k·x = F_e,pk·sin(ωt)
+```
 
-## 6. Plan mínimo de verificación
+Para una excitación sinusoidal, la amplitud estacionaria del modelo masa–resorte–amortiguador es:
 
-1. **Térmico:** prueba escalón por consignas progresivas, registrando T_aire, T_superficie, tiempo de subida, sobreimpulso y error estacionario. No declarar ±1 °C hasta medirlo.
-2. **Vibración:** comenzar a baja amplitud, medir a_rms y desplazamiento, inspeccionar fijaciones y temperatura de amplificador/excitador; detener ante golpes o saturación.
-3. **Identificación dinámica:** efectuar barrido de bajo nivel para localizar resonancias y comparar con el modelo masa–resorte.
-4. **Trazabilidad:** guardar ID de ensayo, configuración B1/B2, temperatura, frecuencia, aceleración, porcentaje de mando, duración, alarmas y archivos brutos. Separar datos medidos de los calculados.
+```
+X = F_e,pk / √[(k − M·ω²)² + (c·ω)²]
+a_pk = ω²·X
+```
 
-## 7. Conclusión preliminar
+La aproximación de fuerza inercial (F_{req,pk}=M a_{target,pk}) sirve como primera comprobación, pero no sustituye el cálculo de la respuesta dinámica cerca de resonancia ni la verificación de rigidez, amortiguamiento y límites de desplazamiento.
 
-La corriente ideal estimada para H-101 es 0.91 A y la masa geométrica de la placa propuesta es aproximadamente 0.285 kg. La selección del woofer, amplificador, resortes y cama caliente aún no puede considerarse cerrada: falta fijar aceleración objetivo, masa móvil real, recorrido permitido, rigidez y fichas técnicas. El conjunto woofer + TPA3116 debe presentarse como prototipo económico pendiente de validación, no como excitador que ya garantiza 10–300 Hz.
+## 4. Consecuencia de conservar el rango histórico de aceleración
 
-**Control de integridad:** los cuatro modelos internos del sensor M18 en el subproyecto FEM son hipótesis geométricas, no reconstrucciones confirmadas del fabricante. El registro actual del subproyecto no demuestra todavía una solución FEM validada; no se usa como prueba de capacidad del actuador.
+La banda anterior de 0,5–5 g no especificaba claramente si se trataba de valor pico o RMS. Antes de dimensionar se debe definir la convención. Si se usa como ejemplo una aceleración pico de 0,5–5 g, la relación cinemática es:
+
+```
+x_pk = a_pk / (2π f_v)²
+```
+
+| Frecuencia | Desplazamiento pico a 0,5 g pico | Desplazamiento pico a 5 g pico |
+|---:|---:|---:|
+| 10 Hz | 1,24 mm | 12,4 mm |
+| 50 Hz | 0,099 mm | 0,994 mm |
+| 100 Hz | 0,0248 mm | 0,248 mm |
+| 200 Hz | 0,00621 mm | 0,0621 mm |
+| 300 Hz | 0,00276 mm | 0,0276 mm |
+
+Son implicaciones cinemáticas del requisito histórico, no resultados de un motor seleccionado. Si los valores solicitados fueran RMS sinusoidal, (a_{pk}=\sqrt{2}\,a_{rms}). Esta tabla muestra por qué deben verificarse tanto el recorrido disponible en el extremo bajo como las fuerzas, el equilibrado y los límites mecánicos en el extremo alto.
+
+Con masa excéntrica fija, la fuerza generada escala como (f_v^2). Por tanto, la aceleración no será independiente de la frecuencia sin ajustes de desequilibrio, modificación de la masa efectiva/estructura o una estrategia de amplitud con realimentación y autoridad suficiente. El acelerómetro mide la respuesta real; no garantiza por sí mismo que el actuador pueda alcanzarla.
+
+## 5. Alimentación de 220 V y cadena de mando PLC
+
+El dato de 220 V AC debe ser una entrada explícita para la selección del controlador/accionamiento, pero no basta para determinar su tamaño. Hay que conocer la tensión, corriente, potencia, velocidad y par nominales del motor.
+
+- **Si es motor AC:** 220 V AC alimentan el variador compatible; el variador entrega la salida adecuada al motor. El PLC entrega la consigna por una interfaz realmente soportada (por ejemplo, 0–10 V/4–20 mA o bus industrial) y señales digitales de permiso/estado.
+- **Si es motor DC:** 220 V AC alimentan un accionamiento DC apropiado, que genera la tensión/corriente DC variable para el motor. Un variador AC convencional no se conecta directamente a un motor DC.
+- En ambas arquitecturas, las salidas de potencia del PLC no alimentan el motor directamente. Se dimensionan accionamiento, protección y cableado a partir de los datos de placa y las condiciones de carga; se especifican parada de emergencia, inhibición segura y reporte de fallo.
+- El PLC debe registrar el setpoint solicitado y la aceleración real. Para evaluar vibración hasta 300 Hz, el canal de adquisición debe tener una frecuencia de muestreo y ancho de banda adecuados; la actualización de una variable cada 100 ms no equivale a muestrear una señal vibratoria a esa tasa.
+
+## 6. Criterios de selección pendientes de resolver
+
+| Decisión/dato | Por qué se necesita |
+|---|---|
+| Tipo de motor acordado: AC con variador o DC con accionamiento DC | Cambia la etapa de potencia, señal PLC, cálculos eléctricos y gama de motores posibles. |
+| Modelo o clase de motor capaz de 18 000 rpm si la excitación es 1× por revolución | Es requisito cinemático para 300 Hz; confirmar certificación de velocidad y montaje de excentricidad. |
+| Masa móvil total medida | Convierte aceleración requerida en fuerza dinámica necesaria. |
+| Perfil de aceleración deseado frente a frecuencia y convención pico/RMS | Evita confundir capacidad del actuador con requisito de ensayo. |
+| Masa excéntrica (m_e) y excentricidad (e), fija o regulable | Define el momento de desequilibrio y la fuerza excitadora. |
+| Rigidez (k), amortiguamiento (c), recorrido admisible y geometría de guías | Define la respuesta de la plataforma y previene interferencias mecánicas. |
+| Tensión/fases, potencia, corriente, velocidad y par nominales | Permite escoger accionamiento compatible con 220 V AC y dimensionar protecciones. |
+| Interface de referencia y feedback soportada por PLC/accionamiento | Permite controlar frecuencia y registrar estados desde PLC/HMI. |
+
+## 7. Criterio para cumplir la rúbrica
+
+La memoria final deberá mostrar el DCL etiquetado, la conversión de frecuencia a rpm, el cálculo de fuerza por desequilibrio, la dinámica masa–resorte–amortiguador, la selección del motor y accionamiento según la alimentación de 220 V, la interfaz PLC, y una tabla de verificación que demuestre el cumplimiento de 10, 50, 100, 200 y 300 Hz en condiciones especificadas. El análisis modal puede servir para validar resonancias, pero no se utiliza para reducir el requisito de frecuencia.
+
+**Límite actual:** no declarar seleccionado ningún modelo de motor/driver ni afirmar cumplimiento de 10–300 Hz hasta resolver el tipo de motor, los datos eléctricos/mecánicos y la fuerza/aceleración de diseño.
