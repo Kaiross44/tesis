@@ -215,3 +215,101 @@ La CPU 1214C DC/DC/DC especificada tiene 14 DI, 10 DO de 24 VDC y 2 AI de 0–10
 - Siemens, ficha CPU 1214C DC/DC/DC: https://support.industry.siemens.com/teddatasheet/?caller=SIOS&format=pdf&language=en&mlfbs=6ES7214-1AG40-0XB0
 - WEG, manual de instalación/operación/mantenimiento de motores: consultar velocidad máxima mecánica y frecuencia máxima de placa: https://static.weg.net/medias/downloadcenter/h0c/hfd/WEG-WMO-iom-installation-operation-and-maintenance-manual-of-electric-motors-50033244-manual-pt-en-es-web.pdf
 - ISO/TR 230-8:2010, sección de vibraciones: fuerza de desequilibrio proporcional al momento de desequilibrio y a ω².
+
+
+## 9. Dimensionamiento preliminar H-101 — calefactor del aire
+
+Base del plano EL-01: calentador PTC de 220 V AC y 200 W; termostato independiente KSD301 NC de 85 °C. Para el cálculo se usa 25–75 °C (ΔT = 50 K) como condición preliminar; confirmar el rango operativo final y mantener el setpoint normal por debajo del límite de seguridad.
+
+```
+I_nom ≈ P/V = 200/220 = 0.91 A
+R_eq ≈ V²/P = 220²/200 = 242 Ω
+```
+
+La resistencia equivalente representa el punto nominal; no supone que el PTC se comporte como resistencia constante. La suficiencia de 200 W no se demuestra sin volumen, área de cámara, aislamiento, masa térmica de paredes/útiles, tiempo objetivo y pérdidas.
+
+Energía mínima del aire:
+```
+Q_air = rho_air · V_chamber · cp_air · ΔT
+```
+Con rho_air = 1.18 kg/m³, cp_air = 1005 J/(kg·K) y ΔT = 50 K:
+- Energía por m³ de aire: 59.3 kJ/m³ (0.0165 kWh/m³).
+- Tiempo ideal por m³ con 200 W: 4.94 min/m³.
+- Solo incluye aire; excluye estructura, útiles, convección, puentes térmicos, infiltración y aperturas.
+
+```
+P_req ≈ [(rho_air·V_chamber·cp_air + sum(m_i·cp_i))·ΔT/t_rise] + Qdot_losses
+q''_conduction ≈ lambda·ΔT/t_insulation
+```
+
+Usando lambda = 0.037 W/(m·K) como valor indicativo de un producto de lana mineral, a ΔT = 50 K, un espesor de 25 mm da aproximadamente 74 W/m² por conducción y 50 mm da 37 W/m². Se conserva 50 mm como punto de partida, no como espesor final. Deben verificarse producto completo, recubrimientos, juntas, puentes térmicos y convección.
+
+## 10. Dimensionamiento preliminar H-102 — superficie caliente
+
+El plano EL-04 indica una cama MK2a de 214 × 214 mm, 24 V DC y resistencia equivalente anotada de unos 3.4 Ω (≈7 A). Confirmar la referencia exacta de la cama comprada.
+
+```
+I_nom = V/R = 24/3.4 = 7.06 A
+P_nom = V²/R = 24²/3.4 = 169.4 W
+A = 0.214 × 0.214 = 0.0458 m²
+P/A ≈ 3.70 kW/m² = 0.370 W/cm²
+```
+
+La densidad de potencia es potencia eléctrica nominal por área, no una medición del calor neto transferido a la muestra.
+
+Para ΔT = 50 K y cp ≈ 879 J/(kg·K) como referencia de aluminio 6061-T6:
+- Energía ideal por kg: 43.95 kJ/kg.
+- Tiempo ideal con 169.4 W: 4.32 min/kg.
+- El cálculo real requiere masa efectiva de cama/placa/pieza, tiempo objetivo y pérdidas hacia suspensión, bastidor, cables y ambiente.
+
+El MOSFET D4184 debe verificarse por corriente continua efectiva, resistencia de conducción, disipación, disipador, temperatura ambiente, bornes y pistas. Como filtro preliminar, 7.06 A con 25 % de margen arroja 8.8 A, pero no certifica la compatibilidad del módulo.
+
+EL-04 suma 10.85 A en 24 V, incluyendo 2.50 A del amplificador del woofer ya descartado. Al retirar esos 2.50 A y conservar provisionalmente las demás cargas, el subtotal es 8.35 A. Una fuente de 15 A tendría 6.65 A (44 % de su capacidad nominal) de reserva. Recalcular con los componentes finales; el motor AC y el VFD se alimentan desde el ramal de 220 V, no desde la fuente de 24 V.
+
+## 11. Selección preliminar de materiales del chasis y cámara
+
+| Elemento | Material candidato | Motivo y validación necesaria |
+|---|---|---|
+| Bastidor fijo | Acero estructural S235JR o ASTM A36 | E típico ~200–210 GPa; densidad ~7850 kg/m³; expansión ~12 µm/(m·K). Económico y soldable. Calcular sección, flecha, esfuerzo, uniones, fatiga, corrosión y respuesta dinámica. |
+| Plataforma/placa distribuidora | Aluminio 6061-T6 como candidato | Densidad ~2710 kg/m³; E ~68.3 GPa; conductividad térmica ~152 W/(m·K); cp ~879 J/(kg·K); expansión ~22.7 µm/(m·K). Menor masa y buena difusión térmica; verificar rigidez, planitud, fijaciones y modos propios. |
+| Piel de cámara | Chapa de acero con acabado anticorrosivo | Proteger aislamiento; dimensionar espesor, soportes y juntas. |
+| Aislamiento | Lana mineral con recubrimiento apto | Confirmar la ficha del producto completo, incluidos recubrimiento y adhesivos, y la temperatura de servicio. |
+| Gabinete eléctrico | Envolvente metálica aterrizada y montaje independiente | Mantener PLC/VFD fuera del volumen caliente y parte móvil; verificar IP, ventilación/derating, puesta a tierra y separación potencia/señal. |
+
+### 11.1 Dilatación térmica
+
+```
+Delta L = alpha · L · Delta T
+```
+Para ΔT = 50 K:
+- Placa de aluminio de 214 mm: ΔL ≈ 0.243 mm.
+- Acero de 214 mm: ΔL ≈ 0.128 mm.
+- Acero por metro: ΔL ≈ 0.600 mm.
+
+La diferencia de expansión en 214 mm es ~0.115 mm. Solo afecta directamente el entrehierro si ocurre en la dirección pertinente; verificar ejes y referencias en el CAD.
+
+### 11.2 Filtro estático del chasis
+
+Para un travesaño tubular rectangular idealizado, simplemente apoyado y con carga puntual central F:
+```
+I = [b·h³ − (b−2t)(h−2t)³]/12
+delta_static = F·L³/(48·E·I)
+sigma_max = F·L·h/(8·I)
+FS_yield = Fy/sigma_max
+```
+
+Este filtro requiere luz L, sección b × h × t y fuerza procedente del DCL. No incluye soldaduras, concentraciones de tensión, fatiga ni amplificación dinámica. Se mantiene todo el rango 10–300 Hz: el análisis modal/harmónico y las mediciones verifican respuesta, esfuerzos y aceleración, no eliminan frecuencias requeridas.
+
+## 12. Entregables revisados
+
+- `Memoria_calculo_actuadores_materiales_Rev002.docx`: H-101, H-102, materiales, expansión térmica, filtro estático de travesaño y datos pendientes.
+- `Calculos_motor_AC_VFD_banco_Rev002.xlsx`: conserva las cuatro hojas del motor y añade `Calculo_H101_Aire`, `Calculo_H102_Superficie` y `Materiales_Chasis`.
+- `Memoria_calculo_actuadores_materiales_Rev002.pdf`: versión renderizada para revisión.
+
+### Fuentes de propiedades
+- Plano electrónico del proyecto, EL-01 y EL-04: especificaciones H-101/H-102 y fuente de 24 V.
+- NIST, Aluminum 6061-T6: https://www.nist.gov/mml/acmd/aluminum-6061-t6-uns-aa96061
+- NASA/NTRS, propiedades de chapa 6061-T6: https://ntrs.nasa.gov/api/citations/20120014854/downloads/20120014854.pdf
+- Armacell, producto de fibra mineral: https://www.armacell.com/en-NL/product/technical-specs/mineral-fibre
+- MatWeb, ASTM A36 Steel Plate: https://www.matweb.com/search/DataSheet.aspx?MatGUID=afc003f4fb40465fa3df05129f0e88e6
+- ANSYS, propiedades térmicas y expansión de materiales: https://ansyshelp.ansys.com/public/Views/Secured/corp/v252/en/motion_theory/motion_theory_materials.html
