@@ -11,9 +11,10 @@ El informe anterior del proyecto propone un **motor con masa excéntrica**, una 
 
 ### Requisito vigente de diseño
 - Frecuencia mecánica de vibración: **10–300 Hz obligatorios**.
-- Alimentación disponible del sistema: **220 V AC**.
-- El motor y su etapa de potencia/control deben integrarse al PLC (consigna, marcha/permiso, parada, alarma/estado y realimentación).
-- La aceleración de ensayo se debe derivar de los requisitos de caracterización y de la capacidad demostrada del conjunto; el antiguo rango 0,5–5 g se conserva como antecedente de diseño, no como decisión final automática.
+- Alimentación disponible: **220 V AC**; número de fases de la red por confirmar.
+- Arquitectura candidata adoptada para los cálculos: **motor AC industrial + VFD**, con mando desde el PLC. Se considera una decisión preliminar de arquitectura, no una selección final de motor/variador.
+- La referencia desde PLC podrá ser analógica (p. ej., 0–10 V, si el PLC y el VFD tienen esa interfaz) o mediante comunicación industrial compatible. El PLC realiza mando/monitorización; no alimenta directamente el motor.
+- La aceleración de ensayo se debe justificar desde los requisitos de caracterización y validarse contra la capacidad real del conjunto. El antiguo rango 0,5–5 g se conserva como antecedente hasta confirmar si continúa vigente y si la magnitud es pico o RMS.
 - La propuesta económica de la lista de materiales de octubre que utiliza woofer/TPA3116/ESP32 queda descartada para la selección actual.
 
 ## 2. Relación entre frecuencia mecánica y velocidad del motor
@@ -33,7 +34,7 @@ n = 60 f_v
 | 200 Hz | 12000 rpm |
 | 300 Hz | 18000 rpm |
 
-Por ello, 300 Hz no significa simplemente configurar 300 Hz en un PLC o en un variador. Si la plataforma recibe un ciclo vibratorio por revolución, el motor debe alcanzar 18 000 rpm mecánicas y estar certificado por el fabricante para esa velocidad, rodamientos y carga excéntrica. Un motor industrial estándar no se debe llevar a esa velocidad por asumir que el variador lo permite. La relación se documenta en manuales de motores vibratorios industriales y la fuerza depende del desequilibrio y del cuadrado de la velocidad.
+Por ello, 300 Hz no significa simplemente configurar 300 Hz en el PLC o en el VFD. Si la plataforma recibe un ciclo vibratorio por revolución, el motor debe alcanzar 18 000 rpm mecánicas y estar certificado por el fabricante para esa velocidad, rodamientos y carga excéntrica. Como referencia, una guía técnica de WEG para motores estándar accionados por variador da límites de velocidad mecánica según bastidor y número de polos; muchos motores estándar están muy por debajo de 18 000 rpm. Por tanto, la arquitectura motor AC + VFD queda como candidata económica, pero no puede darse por válida hasta encontrar un motor cuyo fabricante autorice esa velocidad o justificar una conversión mecánica de frecuencia diferente. La fuerza de desequilibrio aumenta con el cuadrado de la velocidad.
 
 ## 3. Diagrama de cuerpo libre (DCL) de la plataforma
 
@@ -104,28 +105,29 @@ Con masa excéntrica fija, la fuerza generada escala como (f_v^2). Por tanto, la
 
 ## 5. Alimentación de 220 V y cadena de mando PLC
 
-El dato de 220 V AC debe ser una entrada explícita para la selección del controlador/accionamiento, pero no basta para determinar su tamaño. Hay que conocer la tensión, corriente, potencia, velocidad y par nominales del motor.
+El dato de 220 V AC se incluye explícitamente en la selección, pero por sí solo no determina la potencia o capacidad del accionamiento. Se requieren datos de placa del motor y debe confirmarse si el suministro disponible es monofásico o trifásico.
 
-- **Si es motor AC:** 220 V AC alimentan el variador compatible; el variador entrega la salida adecuada al motor. El PLC entrega la consigna por una interfaz realmente soportada (por ejemplo, 0–10 V/4–20 mA o bus industrial) y señales digitales de permiso/estado.
-- **Si es motor DC:** 220 V AC alimentan un accionamiento DC apropiado, que genera la tensión/corriente DC variable para el motor. Un variador AC convencional no se conecta directamente a un motor DC.
-- En ambas arquitecturas, las salidas de potencia del PLC no alimentan el motor directamente. Se dimensionan accionamiento, protección y cableado a partir de los datos de placa y las condiciones de carga; se especifican parada de emergencia, inhibición segura y reporte de fallo.
-- El PLC debe registrar el setpoint solicitado y la aceleración real. Para evaluar vibración hasta 300 Hz, el canal de adquisición debe tener una frecuencia de muestreo y ancho de banda adecuados; la actualización de una variable cada 100 ms no equivale a muestrear una señal vibratoria a esa tasa.
+- Arquitectura candidata: red de 220 V AC → VFD compatible con el suministro y el motor → motor AC con masa excéntrica.
+- Si el suministro de laboratorio es monofásico de 220 V y se selecciona un motor trifásico de 220 V, el VFD debe especificar entrada monofásica de 220 V y salida trifásica apropiada; revisar además la posible reducción de capacidad del VFD cuando trabaja con entrada monofásica.
+- El PLC entrega la consigna por una interfaz soportada en ambos equipos (p. ej., 0–10 V solo si ambos disponen de ella, o comunicación industrial compatible) y señales digitales de marcha/permiso, parada, reset y estado/fallo. Las salidas de potencia del PLC no alimentan directamente el motor.
+- Se dimensionan VFD, protección y cableado a partir de tensión, fases, corriente, potencia, velocidad y par nominales del motor y de la sobrecarga requerida.
+- El PLC debe registrar consigna y aceleración real. Para validar vibración hasta 300 Hz, el ancho de banda y la frecuencia de muestreo deben ser adecuados; una actualización de 10 Hz (o un dato cada 100 ms) no puede caracterizar correctamente una vibración de 300 Hz. La interfaz de adquisición del acelerómetro debe ser compatible con el PLC y tener velocidad suficiente.
 
 ## 6. Criterios de selección pendientes de resolver
 
 | Decisión/dato | Por qué se necesita |
 |---|---|
-| Tipo de motor acordado: AC con variador o DC con accionamiento DC | Cambia la etapa de potencia, señal PLC, cálculos eléctricos y gama de motores posibles. |
-| Modelo o clase de motor capaz de 18 000 rpm si la excitación es 1× por revolución | Es requisito cinemático para 300 Hz; confirmar certificación de velocidad y montaje de excentricidad. |
+| Ficha exacta de motor AC y VFD compatible con 220 V AC | La preferencia de arquitectura es AC + VFD; faltan tipo de red, fases, velocidad mecánica segura, potencia, corriente y protocolo de control. |
+| Velocidad mecánica segura para generar hasta 300 Hz | Con excitación 1× por revolución, se requieren 18 000 rpm; confirmar por ficha del fabricante o justificar otro mecanismo excitador. |
 | Masa móvil total medida | Convierte aceleración requerida en fuerza dinámica necesaria. |
 | Perfil de aceleración deseado frente a frecuencia y convención pico/RMS | Evita confundir capacidad del actuador con requisito de ensayo. |
 | Masa excéntrica (m_e) y excentricidad (e), fija o regulable | Define el momento de desequilibrio y la fuerza excitadora. |
 | Rigidez (k), amortiguamiento (c), recorrido admisible y geometría de guías | Define la respuesta de la plataforma y previene interferencias mecánicas. |
 | Tensión/fases, potencia, corriente, velocidad y par nominales | Permite escoger accionamiento compatible con 220 V AC y dimensionar protecciones. |
-| Interface de referencia y feedback soportada por PLC/accionamiento | Permite controlar frecuencia y registrar estados desde PLC/HMI. |
+| Interfaz de mando VFD–PLC y feedback de aceleración | Permite ajustar velocidad desde PLC/HMI y medir aceleración con ancho de banda suficiente para 300 Hz. |
 
 ## 7. Criterio para cumplir la rúbrica
 
 La memoria final deberá mostrar el DCL etiquetado, la conversión de frecuencia a rpm, el cálculo de fuerza por desequilibrio, la dinámica masa–resorte–amortiguador, la selección del motor y accionamiento según la alimentación de 220 V, la interfaz PLC, y una tabla de verificación que demuestre el cumplimiento de 10, 50, 100, 200 y 300 Hz en condiciones especificadas. El análisis modal puede servir para validar resonancias, pero no se utiliza para reducir el requisito de frecuencia.
 
-**Límite actual:** no declarar seleccionado ningún modelo de motor/driver ni afirmar cumplimiento de 10–300 Hz hasta resolver el tipo de motor, los datos eléctricos/mecánicos y la fuerza/aceleración de diseño.
+**Límite actual:** se adopta AC + VFD como arquitectura candidata por preferencia de coste, pero no se afirma todavía que sea la opción final más económica ni que cumpla 10–300 Hz. Faltan número de fases de la red, ficha del motor/VFD, velocidad mecánica segura, masa móvil, masa excéntrica/excentricidad y perfil de aceleración de diseño.
