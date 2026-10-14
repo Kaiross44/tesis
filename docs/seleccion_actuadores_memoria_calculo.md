@@ -11,7 +11,7 @@ El informe anterior del proyecto propone un **motor con masa excéntrica**, una 
 
 ### Requisito vigente de diseño
 - Frecuencia mecánica de vibración: **10–300 Hz obligatorios**.
-- Alimentación disponible: **220 V AC**; número de fases de la red por confirmar.
+- Alimentación nominal de diseño en Perú: **220 V AC, 60 Hz**. El unifilar preliminar representa entrada monofásica L–N–PE porque así está dibujada la toma en EL-04; confirmar físicamente la configuración de la toma antes de seleccionar el VFD, pues también existen suministros de 220 V trifásicos.
 - Arquitectura candidata adoptada para los cálculos: **motor AC industrial + VFD**, con mando desde el PLC. Se considera una decisión preliminar de arquitectura, no una selección final de motor/variador.
 - La referencia desde PLC podrá ser analógica (p. ej., 0–10 V, si el PLC y el VFD tienen esa interfaz) o mediante comunicación industrial compatible. El PLC realiza mando/monitorización; no alimenta directamente el motor.
 - La aceleración de ensayo se debe justificar desde los requisitos de caracterización y validarse contra la capacidad real del conjunto. El antiguo rango 0,5–5 g se conserva como antecedente hasta confirmar si continúa vigente y si la magnitud es pico o RMS.
@@ -105,7 +105,7 @@ Con masa excéntrica fija, la fuerza generada escala como (f_v^2). Por tanto, la
 
 ## 5. Alimentación de 220 V y cadena de mando PLC
 
-El dato de 220 V AC se incluye explícitamente en la selección, pero por sí solo no determina la potencia o capacidad del accionamiento. Se requieren datos de placa del motor y debe confirmarse si el suministro disponible es monofásico o trifásico.
+El dato de diseño de entrada es 220 V AC, 60 Hz. La hoja EL-04 representa una toma monofásica L–N–PE, que se utilizará como hipótesis de diseño del unifilar preliminar. Antes de comprar el VFD debe verificarse la toma real en laboratorio, ya que el valor nominal de 220 V no determina por sí mismo el número de fases. También se requieren los datos de placa del motor para dimensionar el accionamiento.
 
 - Arquitectura candidata: red de 220 V AC → VFD compatible con el suministro y el motor → motor AC con masa excéntrica.
 - Si el suministro de laboratorio es monofásico de 220 V y se selecciona un motor trifásico de 220 V, el VFD debe especificar entrada monofásica de 220 V y salida trifásica apropiada; revisar además la posible reducción de capacidad del VFD cuando trabaja con entrada monofásica.
@@ -117,7 +117,7 @@ El dato de 220 V AC se incluye explícitamente en la selección, pero por sí so
 
 | Decisión/dato | Por qué se necesita |
 |---|---|
-| Ficha exacta de motor AC y VFD compatible con 220 V AC | La preferencia de arquitectura es AC + VFD; faltan tipo de red, fases, velocidad mecánica segura, potencia, corriente y protocolo de control. |
+| Ficha exacta de motor AC y VFD compatible con 220 V AC, 60 Hz | La preferencia de arquitectura es AC + VFD; verificar que el VFD acepta la configuración monofásica representada en el plano y entrega la salida requerida por el motor, además de velocidad mecánica, potencia, corriente y protocolo de control. |
 | Velocidad mecánica segura para generar hasta 300 Hz | Con excitación 1× por revolución, se requieren 18 000 rpm; confirmar por ficha del fabricante o justificar otro mecanismo excitador. |
 | Masa móvil total medida | Convierte aceleración requerida en fuerza dinámica necesaria. |
 | Perfil de aceleración deseado frente a frecuencia y convención pico/RMS | Evita confundir capacidad del actuador con requisito de ensayo. |
