@@ -368,3 +368,35 @@ No se encontró una cotización pública peruana verificable para la combinació
 - Siemens, nota de transición de S7-1200 de primera generación a G2: https://sieportal.siemens.com/en-ww/search?EntryTypes=&SearchTerm=6ES7214-1AG40-0XB0&SortingOption=DateDesc&scope=knowledgebase
 - Proveedor local, SM 1232 AQ 2 salidas (precio indicativo): https://www.grupocoinp.com/shop/product/6es7232-4hb32-0xb0-modulo-salida-analogica-sm-1232-2-aq-14-bit-13-bit-659
 - Proveedor local, CPU 1215C (precio indicativo): https://telectricperu.com/product-category/siemens/page/15/
+
+
+## 14. Justificación de E/S y selección del PLC — revisión 0.03
+
+La matriz de requisitos entregada para el banco presenta estos niveles:
+
+| Nivel | Canales analógicos | Canales digitales | Lazos de control |
+|---|---:|---:|---:|
+| 1 | 1 | 1 | 1 |
+| 2 | 2 | 3 | 1 |
+| 3 | 2 | 4 | 1 |
+| 4 adoptado | 3 | 6 | 1 |
+
+Se adopta el nivel 4 porque el banco requiere medir dos temperaturas (aire y superficie) y la aceleración RMS acondicionada, además de seis entradas digitales para los sensores de referencia/protegido, marcha, parada, contacto auxiliar del E-stop y puerta cerrada. La matriz no detalla si los canales analógicos son entradas o salidas; por eso el mapa del hardware distingue explícitamente **3 AI de medición + 1 AQ adicional si se manda la consigna del VFD por señal analógica**.
+
+### Hardware recomendado para una compra nueva
+
+- **CPU:** Siemens SIMATIC S7-1200 G2 CPU 1214C DC/DC/DC, 6ES7214-1AH50-0XB0 (14 DI, 10 DQ).
+- **Módulo analógico:** SM 1233, 4 AI/4 AQ, 6ES7233-4HF50-0XB0 (cuatro entradas y cuatro salidas analógicas de 14 bits).
+- **Capacidad frente a demanda:** AI 3/4 (1 libre); AQ 1/4 (3 libres, si la referencia al VFD es analógica); DI 6/14 (8 libres); DQ 5/10 (5 libres); 1 PID_Compact principal programado en software.
+- **Asignación:** AI0 temperatura de aire; AI1 temperatura de superficie; AI2 señal RMS de aceleración acondicionada; AI3 reserva. AQ0 referencia del VFD; AQ1–AQ3 reserva. DI0–DI5 según la lista anterior. DQ0–DQ4 controlan interfaz del SSR H-101, H-102, ventilador, piloto y permiso de marcha del VFD.
+- **Control:** un PID_Compact principal para el aire de cámara (H-101). H-102 se plantea inicialmente con control ON/OFF e histéresis más termostato KSD301 independiente. Si la validación demuestra que necesita un segundo PID, revisar el requisito de la rúbrica y el programa.
+- **Adquisición vibratoria:** AI2 recibe una señal RMS acondicionada para supervisar amplitud; no se supone que el PLC muestree directamente la forma de onda vibratoria a 300 Hz. La captura de forma de onda/armónicos requiere DAQ o acondicionador con ancho de banda y frecuencia de muestreo adecuados.
+- **Seguridad:** el paro de emergencia debe actuar mediante una cadena cableada adecuada a la evaluación de riesgos; una entrada auxiliar en PLC solo informa estado y no sustituye la función de seguridad.
+
+La G2 queda condicionada a usar **TIA Portal V20 o posterior**. Si el laboratorio está limitado a V19, resolver la compatibilidad antes de la compra y evaluar una CPU de primera generación con módulos de señal compatibles. Siemens anuncia phase-out de la primera generación desde el 1 de noviembre de 2026, por lo que no se adopta una CPU de primera generación como primera opción para una compra nueva.
+
+Fuentes oficiales:
+- CPU 1214C G2, 6ES7214-1AH50-0XB0: https://mall.industry.siemens.com/mall/en/hr/Catalog/Product/6ES7214-1AH50-0XB0
+- SM 1233 4 AI/4 AQ, 6ES7233-4HF50-0XB0: https://mall.industry.siemens.com/mall/PT/PT/Catalog/Product/?mlfb=6ES7233-4HF50-0XB0
+- Manual S7-1200 G2 y software: https://support.industry.siemens.com/cs/attachments/109972011/s71200_system_manual_es-ES_es-ES.pdf
+- CPU 1215C de primera generación y estado de ciclo de vida: https://mall.industry.siemens.com/mall/en/EN/Catalog/Product/6ES7215-1AG40-0XB0
