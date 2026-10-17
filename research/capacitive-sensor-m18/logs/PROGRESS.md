@@ -222,3 +222,25 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 - No se cambian física, geometría de H1, potenciales, tamaño de región, setup ni configuración del solver.
 - Próximo paso: ejecutar v13 y revisar el JSON. Aceptar la salida como solución solo si se crean hoja, potenciales, setup, el solver finaliza y se confirma convergencia en los mensajes/pasadas adaptativas. Si vuelve a fallar, preservar el error exacto y corregir solo ese fallo.
 
+## 2026-10-16 — H1 v13 resolvió y creó el mapa longitudinal; corte visual no centrado
+
+### Evidencia v13 aportada por el usuario
+- JSON `M18_H1_CorteLongitudinal_v13_20261016_230545.json`: `status=H1_SOLVED_LONGITUDINAL_EFIELD_PLOT_CREATED`, `solved=true), `solver_call_completed=true), `region_created=true), fronteras eléctricas creadas y setup creado.
+- El JSON confirma que se creó una hoja diagnóstica y un plot `Mag_E` en una superficie de corte XZ; `plot_errors=[]`.
+- El script no verifica la convergencia (`convergence_verified_by_script=false)); por tanto, el caso requiere inspección manual de pasadas adaptativas y mensajes antes de calificarse como convergido.
+- En la captura el mapa aparece como un rectángulo horizontal grande y el conjunto queda descentrado hacia la zona superior. Esto parece consistente con la convención de ejes locales `Width/Height` en `CreateRectangle(WhichAxis="Y")`: v13 asignó Width=25 mm y Height=40 mm, aunque se quería X=25 mm y Z=40 mm. La caja real de la hoja no se registró en v13, así que el diagnóstico se toma como hipótesis fuerte basada en la captura, pendiente de verificarse midiendo el bbox de la hoja.
+
+### Automatización v14 preparada
+- Artefacto local: `M18_ANSYS_H1_CorteLongitudinal_v14.zip`.
+- Mantiene sin cambios la física/modelo base y el padding 300 % de la región exterior; solo corrige la superficie diagnóstica para centrar el detalle en el sensor y el objetivo.
+- Límites previstos del corte: X=[-20,-8] mm, Z=[-17,17] mm, y=0 mm. En la llamada `CreateRectangle` se usan Width=34 mm para Z y Height=12 mm para X, con `WhichAxis="Y"`.
+- La plantilla registra la caja real de la hoja mediante `GetObjectBoundingBox` y valida los límites esperados con tolerancia de 0.15 mm. Si no coincide, se detiene antes de aplicar potenciales y resolver, evitando presentar un mapa sobre un corte mal ubicado.
+- La sintaxis Python de la plantilla después de sustituir los marcadores fue comprobada localmente; **v14 aún no se ejecuta en AEDT**.
+- Repositorio del proyecto: https://github.com/Kaiross44/tesis/blob/main/research/capacitive-sensor-m18/logs/PROGRESS.md
+
+### Próximos criterios
+1. Ejecutar v14 y comprobar `longitudinal_cut_actual_bbox_mm` en el JSON.
+2. Aceptar el corte solo si bbox real = X[-20,-8], Z[-17,17], y≈0 mm.
+3. Verificar estado de convergencia y mensajes del solver en AEDT.
+4. Después exportar una figura con vista ortogonal al plano XZ, leyenda V/m legible y detalle de la brecha de 4 mm. No presentar el máximo de la leyenda como conclusión antes de las comprobaciones de convergencia/malla/dominio.
+
