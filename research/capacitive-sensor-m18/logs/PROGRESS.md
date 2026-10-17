@@ -183,3 +183,25 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 - Estado: **solver ejecutado y visualizaciones creadas; convergencia aún no verificada documentalmente**.
 - No reportar todavía el campo máximo de la leyenda como hallazgo, ni afirmar validación de H1, hasta auditar los mensajes/convergencia y clarificar la visualización.
 
+## 2026-10-16 — Automatización v12 preparada para mapa longitudinal de |E| en plano XZ
+
+### Motivo
+- En las capturas de v11 el overlay de líneas/vectores densos dificultaba ver el campo en la brecha frontal.
+- El usuario ocultó esos overlays siguiendo la indicación anterior; por eso las líneas dejan de verse. Ocultarlas no borra los plots de v11.
+- Las capturas compartidas de `Solve Setup` muestran configuración de convergencia (12 pasadas máximas, error porcentual 1 %, refinamiento por pasada 30 %, mínimo 2 pasadas y mínimo 1 pasada convergida), pero no constituyen evidencia de que esas condiciones se hayan alcanzado.
+
+### Paquete v12
+- Artefacto local: `M18_ANSYS_H1_CorteLongitudinal_v12.zip`.
+- Se prepara un proyecto independiente H1 (no sobrescribe v11), con una hoja diagnóstica de espesor nulo en el plano XZ, `y=0 mm`, que cubre `x=-25..0 mm` y `z=-20..20 mm`.
+- La hoja es exclusivamente de visualización; no representa un componente físico, no se le asigna excitación o frontera eléctrica. Se crea después de la región exterior, con el fin de que no cambie el cálculo inicial del tamaño de la región.
+- El gráfico principal es `Mag_E` sobre la cara de la hoja, mediante `CreateFieldPlot` con `PlotGeomInfo=[1,"Surface","FacesList",1,face_id]`, tomando como base la documentación de Maxwell Scripting Guide 2025 R2: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Content/CreateFieldPlot.htm
+- v12 omite los overlays volumétricos de flechas y trazas 3D para no saturar la vista, y ejecuta un análisis H1 nuevo. El automatizador conserva el proyecto v11 sin modificar.
+- El script y la estructura del paquete se revisaron sintácticamente fuera de AEDT. **v12 aún no ha sido ejecutada en el equipo del usuario**; la creación de la hoja y el plot deben verificarse con el JSON de salida y la interfaz.
+- Ruta esperada de salidas: `%USERPROFILE%\ANSYS_M18\Maxwell_Proyectos\M18_H1_CorteLongitudinal_v12_*`.
+
+### Próximo criterio de aceptación
+1. El JSON debe informar `solved=true`, `longitudinal_cut_created=true` y `longitudinal_cut_field_plot_created=true`.
+2. Revisar convergencia/adaptive passes y Message Manager. La finalización de `Analyze` no acredita por sí misma convergencia física.
+3. Confirmar que el mapa de `|E|` es visible sobre el corte XZ, con unidades V/m y brecha nominal de 4 mm reconocible.
+4. Si falla el plot sobre hoja, conservar el JSON/error; no atribuir un resultado físico al mapa no generado.
+
