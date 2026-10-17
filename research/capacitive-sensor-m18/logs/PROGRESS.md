@@ -205,3 +205,20 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 3. Confirmar que el mapa de `|E|` es visible sobre el corte XZ, con unidades V/m y brecha nominal de 4 mm reconocible.
 4. Si falla el plot sobre hoja, conservar el JSON/error; no atribuir un resultado físico al mapa no generado.
 
+## 2026-10-16 — v12 falló al crear la hoja de corte; v13 corrige transparencia
+
+### Evidencia de ejecución v12 aportada
+- JSON: `M18_H1_CorteLongitudinal_v12_20261016_224015.json`.
+- Estado: `H1_FAILED_OR_PARTIAL`; `region_created=true), pero `longitudinal_cut_created=false), `voltage_boundaries_created=false), `setup_created=false), `solved=false) y `longitudinal_cut_field_plot_created=false).
+- Error exacto de AEDT: `Part Attributes: 70 is not a valid transparency index, transparency index must greater than 0 and less than 1.`
+- El error ocurre en `editor.CreateRectangle(...)` al crear la hoja diagnóstica XZ. La hoja no se creó; por tanto la captura con la región exterior y el conjunto pequeño es solo la geometría parcialmente construida, no un resultado de campo ni un corte longitudinal.
+- La causa localizada en la plantilla v12 es `"Transparency:=", 70`. La documentación de 3D Modeler indica que Transparency requiere una fracción entre 0 y 1: https://ansyshelp.ansys.com/public/Views/Secured/Electronics/v251/en/Subsystems/Circuit/Subsystems/Circuit%20Scripting/Content/3DModelerEditorScriptCommands.htm
+- La hoja se intentaba crear con `WhichAxis="Y"`, en el plano XZ, y extensión x=-25..0 mm, z=-20..20 mm, y=0 mm. La configuración de geometría de corte se mantiene para v13; solo se cambia la transparencia a 0.7.
+
+### Paquete v13 preparado
+- Artefacto: `M18_ANSYS_H1_CorteLongitudinal_v13.zip`.
+- Cambio principal: `Transparency:=0.7) en la hoja de corte, con versiones de script, plantilla, README y changelog renombradas v13.
+- La sintaxis Python de la plantilla tras sustitución de placeholders fue verificada localmente; PowerShell/AEDT todavía no ha ejecutado el paquete.
+- No se cambian física, geometría de H1, potenciales, tamaño de región, setup ni configuración del solver.
+- Próximo paso: ejecutar v13 y revisar el JSON. Aceptar la salida como solución solo si se crean hoja, potenciales, setup, el solver finaliza y se confirma convergencia en los mensajes/pasadas adaptativas. Si vuelve a fallar, preservar el error exacto y corregir solo ese fallo.
+
