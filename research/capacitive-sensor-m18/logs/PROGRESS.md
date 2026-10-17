@@ -155,3 +155,31 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 - La plantilla v11 suministrada corrige la región de vacío a `SolveInside=True`, manteniendo los cuerpos conductores como `SolveInside=False`. Esa versión sigue pendiente de ejecución; no considerar el error v10 como fallo de v11.
 - Próxima acción: ejecutar la plantilla/PS1 v11 del paquete `M18_ANSYS_H1_Campo_v11_SolveInsideFix.zip` y revisar su nuevo JSON. No volver a ejecutar la versión v10.
 - Criterio de salida: solver complete sin el error SolveInside; validar la convergencia antes de aceptar cualquier gráfica de campo.
+
+## 2026-10-16 — H1 v11 ejecutó el solver y creó visualizaciones; convergencia pendiente de auditar
+
+### Evidencia aportada por el usuario
+- Se recibió el JSON `M18_H1_Campo_v11_20261016_214333.json` y la captura de AEDT.
+- El JSON registra `status=H1_SOLVED_FIELD_VISUALIZATION_CREATED`, `solved=true`, `solver_call_completed=true`, `region_created=true`, `region_solve_inside=true`, fronteras de potencial creadas y `Setup1` creado. El error previo de `SolveInside` ya no aparece en el estado resumido.
+- Se crearon los tres tipos de visualización: `Mag_E`, `E_Vector` y `QuantityName_FieldLineTrace`; `plot_errors=[]`.
+- No se asignó una frontera Balloon: el JSON conserva la condición Neumann por defecto en las seis caras de la región con padding del 300 %. Esta elección es una aproximación y requiere sensibilidad al tamaño de región.
+- La geometría reportada conserva la separación sensor–objetivo de 4.0 mm y tres sólidos importados; los tres se idealizaron como cobre. La región usa vacío como aproximación inicial de aire.
+- La captura compartida muestra una visualización muy saturada de vectores/líneas sobre un dominio grande. El indicador de escala visible llega a 200 mm; esto parece deberse en gran parte a que se muestran simultáneamente trazas y vectores en un volumen exterior amplio. Una región de aire no necesita ser cúbica por principio; lo importante es que las fronteras lejanas no alteren materialmente la métrica calculada.
+- La leyenda visible en la captura indica máximos y mínimos de campo, pero no se registran como resultados científicos todavía: hay capas de visualización superpuestas y no se ha aportado evidencia de convergencia/adaptación del solver, estadística de malla ni sensibilidad de frontera.
+
+### Interpretación y limitaciones
+- Esta ejecución confirma el avance de preparación a una llamada de solver completada y a plots creados; no equivale por sí sola a una solución científicamente aceptada.
+- El campo electrostático es estático, no una onda electromagnética propagante. Tampoco se han calculado todavía capacitancia frente a distancia, influencia térmica, EMI dinámica ni vibración.
+- La excitación de 1 V sigue siendo una normalización matemática, no una afirmación acerca de la tensión interna del producto comercial.
+
+### Próximo paso obligatorio
+1. Abrir el proyecto existente `M18_H1_Campo_v11_20261016_214333.aedt`; no regenerar el proyecto ni volver a ejecutar el script de momento.
+2. Revisar en AEDT el estado de convergencia/adaptive passes de `Setup1` y el Message Manager; guardar evidencia visual de ese estado.
+3. Para despejar la figura, ocultar temporalmente los plots `E_Vector` y `Field Lines H1`, dejando visible solo `MagE_H1`. Crear después un corte central longitudinal (plano XZ o XY, según el sistema de coordenadas) y acercar la zona sensor–objetivo para visualizar `|E|` con leyenda en V/m.
+4. Si el caso es convergente, conservar la corrida de 300 % como referencia y estudiar posteriormente sensibilidad del dominio exterior (por ejemplo, 200/300/400 %) y de malla usando una métrica cuantitativa común, preferentemente capacitancia extraída de forma documentada.
+5. Solo tras verificar convergencia y sensibilidad, aceptar las figuras A3–A4 y continuar con extracción de capacitancia y barrido de `d_target`.
+
+### Estado para el artículo
+- Estado: **solver ejecutado y visualizaciones creadas; convergencia aún no verificada documentalmente**.
+- No reportar todavía el campo máximo de la leyenda como hallazgo, ni afirmar validación de H1, hasta auditar los mensajes/convergencia y clarificar la visualización.
+
