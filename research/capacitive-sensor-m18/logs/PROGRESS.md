@@ -244,3 +244,28 @@ El JSON debe mostrar que la región está creada, las fronteras 1 V / 0 V están
 3. Verificar estado de convergencia y mensajes del solver en AEDT.
 4. Después exportar una figura con vista ortogonal al plano XZ, leyenda V/m legible y detalle de la brecha de 4 mm. No presentar el máximo de la leyenda como conclusión antes de las comprobaciones de convergencia/malla/dominio.
 
+## 2026-10-16 — H1 v14: corte longitudinal centrado y mapa de |E| creado
+
+### Evidencia aportada
+- JSON: `M18_H1_CorteLongitudinal_v14_20261016_231231.json`.
+- Estado reportado: `H1_SOLVED_LONGITUDINAL_EFIELD_PLOT_CREATED); `solved=true), `solver_call_completed=true), región y potenciales creados, `plot_errors=[]).
+- Se confirmó en el JSON el bounding box real de la hoja diagnóstica: X=[-20,-8] mm, Y≈0 mm (error numérico ~6.7e-15 mm), Z=[-17,17] mm. La hoja queda centrada en la región del objetivo y electrodos, según lo esperado.
+- La captura de AEDT muestra el mapa `Mag_E` sobre la hoja XZ sin las trazas densas 3D. La escala visible se extiende de 0 a 1600 V/m (máximo etiquetado 1541.033 V/m). Se conserva como valor mostrado por el plot, **no como resultado definitivo aceptado**, hasta verificar convergencia y sensibilidad numérica.
+- El dominio exterior continúa con padding 300 %, condición exterior Neumann por defecto y aproximación de aire/vacío; no se modificó a raíz de la apariencia del mapa.
+- `convergence_verified_by_script=false`; la captura no incluye el informe de pasadas adaptativas. La solución está ejecutada y el mapa creado, pero la convergencia aún requiere auditoría manual.
+
+### Interpretación visual
+- La hoja de corte diagnóstica está correctamente ubicada en las coordenadas reportadas. Las barras verticales visibles corresponden a las secciones de los sólidos al intersectarlos con el plano longitudinal.
+- La zona azul corresponde a niveles relativamente bajos de `|E|` en la escala del mapa; por sí sola no demuestra que el volumen de aire/vacío esté mal dimensionado.
+- No comparar el máximo de v14 directamente con el máximo mostrado por v13 como conclusión física, porque las superficies de visualización son distintas y no se ha documentado el efecto de malla/escala.
+
+### Próximo paso
+1. Abrir `Setup1` > pestaña/registro de convergencia o perfil de solución y comprobar las pasadas adaptativas realmente completadas y el criterio que alcanzaron.
+2. Revisar el Message Manager para confirmar ausencia de errores y advertencias relevantes.
+3. Guardar una captura del reporte de convergencia.
+4. Después crear/exportar una figura con orientación normal al plano XZ, recorte alrededor de la cara sensible y objetivo, y leyenda de V/m visible.
+5. Tras aceptar convergencia, documentar sensibilidad de malla y tamaño de región y extraer la métrica capacitiva. No iniciar aún el barrido H1–H4 ni el estudio térmico.
+
+### Estado científico
+**H1 resuelto por llamada al solver y mapa longitudinal creado; convergencia, sensibilidad de malla/región y extracción capacitiva pendientes.** La excitación sigue siendo 1 V normalizado y H1 sigue siendo una hipótesis de arquitectura interna.
+
